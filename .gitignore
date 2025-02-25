@@ -1,0 +1,19 @@
+# Django
+*.pyc
+__pycache__/
+db.sqlite3
+/media/
+*.log
+
+# Configuração
+.env
+.vscode/
+.idea/
+*.DS_Store
+
+# Virtual Environment
+venv/
+*.egg-info/
+
+# Git
+.git/
