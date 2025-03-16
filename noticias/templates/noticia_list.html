@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Lista de Notícias</h3>
+
+    <!-- Filtros -->
+    <form id="filtro-form" method="get" action="{% url 'noticia_list' %}"
+        hx-get="{% url 'noticia_list' %}"
+        hx-target="#lista-noticias"
+        hx-trigger="input from:.filtro delay:500ms, change from:.select-filtro"
+        hx-push-url="true">
+        
+        {% csrf_token %}
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="titulo" class="form-label">Título</label>
+                <input type="text" name="titulo" id="titulo" class="form-control filtro" placeholder="Buscar título">
+            </div>
+
+            <div class="col-md-3">
+                <label for="veiculo" class="form-label">Veículo</label>
+                <input type="text" id="veiculo-autocomplete" class="form-control filtro" name="q"
+                    placeholder="Digite o nome do veículo"
+                    hx-get="{% url 'buscar_veiculos' %}"
+                    hx-trigger="input changed delay:500ms"
+                    hx-target="#sugestoes-veiculo"
+                    hx-vals="js:{q: document.getElementById('veiculo-autocomplete').value}"
+                    autocomplete="off">
+                <div id="sugestoes-veiculo" class="dropdown-menu w-100"></div>
+            </div>
+
+            <!-- 🔹 Filtro de Estado -->
+            <div class="col-md-3">
+                <label for="estado" class="form-label">Estado</label>
+                <select name="estado" id="estado" class="form-select select-filtro"
+                    hx-get="{% url 'buscar_cidades' %}"
+                    hx-trigger="change"
+                    hx-target="#cidade">
+                    <option value="">Todos</option>
+                    {% for estado in estados %}
+                        <option value="{{ estado.cd_uf }}">{{ estado.nome_uf }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- 🔹 Filtro de Cidade -->
+            <div class="col-md-3">
+                <label for="cidade" class="form-label">Cidade</label>
+                <select name="cidade" id="cidade" class="form-select select-filtro">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+            
+            <div class="d-flex justify-content-end mb-3">
+                <a href="{% url 'noticia_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Cadastrar Notícia
+                </a>
+            </div>
+            
+        </div>
+    </form>
+
+
+    <!-- Tabela de Notícias -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ações</th>
+                    <th>Título</th>
+                    <th>Veículo</th>
+                    <th>Data de Publicação</th>
+                </tr>
+            </thead>
+            <tbody id="lista-noticias" hx-get="{% url 'noticia_list' %}" hx-trigger="load">
+                {% include 'partials/noticia_list_partial.html' %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para exibição da notícia -->
+<div class="modal fade" id="noticiaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes da Notícia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="noticiaModalBody">
+                <!-- O conteúdo será carregado aqui via HTMX -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

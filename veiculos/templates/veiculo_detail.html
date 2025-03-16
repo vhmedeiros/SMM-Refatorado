@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6 text-light">Detalhes do Veículo</h3>
+
+    <div class="card shadow-sm bg-dark text-light">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Nome do Veículo</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_veiculo|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Prioridade</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.prioridade_veiculo|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Veículo Nacional</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.veiculo_nacional|yesno:"Sim,Não" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Situação</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {% if object.situacao_veiculo == 'A' %} Ativo {% else %} Inativo {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Ordem de Importância</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.ordem_veiculo|default:"Não informado" }}
+                    </div>
+                </div>
+
+                <!-- Localização -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">UF</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cd_uf|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Município</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.id_municipio|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">País</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cd_pais|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Língua</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cd_lingua|default:"Não informado" }}
+                    </div>
+                </div>
+
+                <!-- Informações adicionais -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Tipo de Veículo</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.tipo_veiculo|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Valor Publicitário (R$)</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.valor_publicitario_cm|floatformat:2|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Altura (cm)</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cm_altura|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Largura (cm)</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cm_largura|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">Endereço do Site</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {% if object.endereco_site_veiculo %}
+                        <a href="{{ object.endereco_site_veiculo }}" target="_blank" class="text-info">{{ object.endereco_site_veiculo }}</a>
+                        {% else %}
+                        Não informado
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Dias de Publicação -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">Dias de Publicação</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        <strong>Domingo:</strong> {{ object.in_domingo|yesno:"Sim,Não" }} <br>
+                        <strong>Segunda:</strong> {{ object.in_segunda|yesno:"Sim,Não" }} <br>
+                        <strong>Terça:</strong> {{ object.in_terca|yesno:"Sim,Não" }} <br>
+                        <strong>Quarta:</strong> {{ object.in_quarta|yesno:"Sim,Não" }} <br>
+                        <strong>Quinta:</strong> {{ object.in_quinta|yesno:"Sim,Não" }} <br>
+                        <strong>Sexta:</strong> {{ object.in_sexta|yesno:"Sim,Não" }} <br>
+                        <strong>Sábado:</strong> {{ object.in_sabado|yesno:"Sim,Não" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'veiculo_update' object.pk %}" class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-pencil"></i> Editar Veículo
+                </a>
+                <a href="{% url 'veiculo_list' %}" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left"></i> Voltar para Lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

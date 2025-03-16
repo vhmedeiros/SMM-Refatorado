@@ -1,0 +1,10 @@
+<div>
+    <h4>{{ noticia.titulo }}</h4>
+    <p><strong>Veículo:</strong> {{ noticia.cd_veiculo.nome_veiculo|default:"Sem veículo" }}</p>
+    <p><strong>Data de Publicação:</strong> {{ noticia.dt_noticia|date:"d/m/Y" }}</p>
+    <hr>
+    <p><strong>Conteúdo:</strong></p>
+    <p>{{ noticia.conteudo|linebreaks|default:"Sem conteúdo disponível" }}</p>
+    <hr>
+    <p><strong>Fonte:</strong> <a href="{{ noticia.ds_url }}" target="_blank">{{ noticia.ds_url }}</a></p>
+</div>

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}
+SMM - Lista de Contratos
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Contratos - {{ cliente.nome_cliente }}</h3>
+        <div class="row mb-3">
+            <div class="col-md-4 d-flex align-items-end">
+                <a href="{% url 'contrato_create' cliente.id_cliente %}" class="btn btn-outline-success me-2">Novo Contrato</a>
+                <a href="{% url 'cliente_detail' cliente.id_cliente %}" class="btn btn-outline-secondary me-2"><i class="bi bi-arrow-left"></i>Voltar</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabela -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ações</th>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Valor Mensal</th>
+                    <th>Data Início</th>
+                    <th>Data Fim</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contrato in contratos %}
+                <tr>
+                    <td>
+                        <!-- Botão de Visualizar -->
+                        <a href="{% url 'contrato_detail' contrato.id_contrato %}" class="btn btn-info btn-sm" title="Visualizar">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <!-- Botão de Editar -->
+                        <a href="{% url 'contrato_update' contrato.pk %}" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                    <td>{{ contrato.id_contrato }}</td>
+                    <td>{{ contrato.descricao_contrato }}</td>
+                    <td>R$ {{ contrato.valor_contrato|floatformat:2 }}</td>
+                    <td>{{ contrato.data_inicio_vigencia|date:"d/m/Y" }}</td>
+                    <td>{{ contrato.data_fim_vigencia|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if contrato.status_contrato == "A" %}
+                            <span class="badge bg-success">Ativo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inativo</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-light">Nenhum contrato encontrado para este cliente.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    {% include 'components/_pagination.html' %}
+</div>
+
+{% endblock %}

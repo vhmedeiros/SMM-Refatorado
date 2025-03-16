@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Editar Notícia</h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <!-- Formulário de Edição -->
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- Campos do formulário -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.id_importacao.label_tag }}
+                        {{ form.id_importacao }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.dt_importacao.label_tag }}
+                        {{ form.dt_importacao }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.dt_noticia.label_tag }}
+                        {{ form.dt_noticia }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.cd_veiculo.label_tag }}
+                        {{ form.cd_veiculo }}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        {{ form.titulo.label_tag }}
+                        {{ form.titulo }}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        {{ form.subtitulo.label_tag }}
+                        {{ form.subtitulo }}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        {{ form.conteudo.label_tag }}
+                        <textarea id="{{ form.conteudo.id_for_label }}" name="{{ form.conteudo.html_name }}" class="form-control" rows="10">{{ form.conteudo.value }}</textarea>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        {{ form.ds_url.label_tag }}
+                        {{ form.ds_url }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.no_colunista.label_tag }}
+                        {{ form.no_colunista }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.ds_url_media.label_tag }}
+                        {{ form.ds_url_media }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.id_editoria.label_tag }}
+                        {{ form.id_editoria }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.cd_pagina.label_tag }}
+                        {{ form.cd_pagina }}
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <button type="submit" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-save"></i> Salvar Notícia
+                </button>
+                <a href="{% url 'noticia_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

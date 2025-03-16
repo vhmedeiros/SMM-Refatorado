@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}
+SMM - Lista de Notícias
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Lista de Notícias</h3>
+
+    <!-- Filtros -->
+    <form method="get" action="{% url 'noticia_list' %}">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="titulo" class="form-label">Título</label>
+                <input type="text" name="titulo" id="titulo" class="form-control" placeholder="Buscar título" value="{{ request.GET.titulo }}">
+            </div>
+            <div class="col-md-4">
+                <label for="conteudo" class="form-label">Conteúdo</label>
+                <input type="text" name="conteudo" id="conteudo" class="form-control" placeholder="Buscar conteúdo" value="{{ request.GET.conteudo }}">
+            </div>
+            <div class="col-md-4">
+                <label for="veiculo" class="form-label">Veículo</label>
+                <select name="veiculo" id="veiculo" class="form-select">
+                    <option value="">Todos</option>
+                    {% for veiculo in veiculos %}
+                    <option value="{{ veiculo.id }}" {% if request.GET.veiculo == veiculo.id|stringformat:"s" %}selected{% endif %}>
+                        {{ veiculo.nome_veiculo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="uf" class="form-label">UF</label>
+                <select name="uf" id="uf" class="form-select">
+                    <option value="">Todas</option>
+                    {% for uf in ufs %}
+                    <option value="{{ uf }}" {% if request.GET.uf == uf %}selected{% endif %}>{{ uf }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="cidade" class="form-label">Cidade</label>
+                <select name="cidade" id="cidade" class="form-select">
+                    <option value="">Todas</option>
+                    {% for cidade_id, cidade_nome in cidades %}
+                    <option value="{{ cidade_id }}" {% if request.GET.cidade == cidade_id|stringformat:"s" %}selected{% endif %}>
+                        {{ cidade_nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary me-2">Buscar</button>
+                <a href="{% url 'noticia_create' %}" class="btn btn-outline-success">Cadastrar Notícia</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabela -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ações</th>
+                    <th>Título</th>
+                    <th>Veículo</th>
+                    <th>Data de Publicação</th>
+                    <th>Data de Importação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for noticia in noticias %}
+                <tr>
+                    <td>
+                        <a href="{% url 'noticia_detail' noticia.cd_noticia%}" class="btn btn-info btn-sm p-1" title="Visualizar">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'noticia_update' noticia.cd_noticia %}" class="btn btn-warning btn-sm p-1" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                    </td>
+                    <td>{{ noticia.titulo }}</td>
+                    <td>{{ noticia.cd_veiculo.nome_veiculo }}</td>
+                    <td>{{ noticia.dt_noticia|date:"d/m/Y" }}</td>
+                    <td>{{ noticia.dt_importacao|date:"d/m/Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhuma notícia encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    {% include 'components/_pagination.html' %}
+</div>
+{% endblock %}

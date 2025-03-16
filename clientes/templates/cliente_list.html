@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}
+SMM - Lista de Clientes
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Lista de Clientes</h3>
+
+    <!-- Filtros -->
+    <form method="get" action="{% url 'cliente_list' %}">
+        <div class="row mb-3">
+            <div class="col-md-6 text-md-start">
+                <label for="nome_cliente" class="form-label">Nome do Cliente</label>
+                <input type="text" name="nome_cliente" id="nome_cliente" class="form-control" placeholder="Buscar cliente" value="{{ request.GET.nome_cliente }}">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary me-2">Buscar</button>
+                <a href="{% url 'cliente_create' %}" class="btn btn-outline-success">Cadastrar Cliente</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabela -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ações</th>
+                    <th>Nome do Cliente</th>
+                    <th>CNPJ/CPF</th>
+                    <th>UF</th>
+                    <th>Cidade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>
+                        <!-- Botão de Visualizar -->
+                        <a href="{% url 'cliente_detail' cliente.id_cliente %}" class="btn btn-info btn-sm p-1" title="Visualizar">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <!-- Botão de Editar -->
+                        <a href="{% url 'cliente_update' cliente.id_cliente %}" class="btn btn-warning btn-sm p-1" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'contrato_list' cliente.id_cliente %}" class="btn btn-secondary btn-sm p-1" title="Contrato">
+                            <i class="bi bi-file-earmark-text"></i>
+                    </td>
+                    <td>{{ cliente.nome_cliente }}</td>
+                    <td>
+                        {% if cliente.numero_cnpj %}
+                            {{ cliente.numero_cnpj|slice:":2" }}.{{ cliente.numero_cnpj|slice:"2:5" }}.{{ cliente.numero_cnpj|slice:"5:8" }}/{{ cliente.numero_cnpj|slice:"8:12" }}-{{ cliente.numero_cnpj|slice:"12:" }}
+                        {% elif cliente.numero_cpf %}
+                            {{ cliente.numero_cpf|slice:":3" }}.{{ cliente.numero_cpf|slice:"3:6" }}.{{ cliente.numero_cpf|slice:"6:9" }}-{{ cliente.numero_cpf|slice:"9:" }}
+                        {% else %}
+                            Não informado
+                        {% endif %}
+                    </td>
+                    <td>{{ cliente.cd_uf|default:"-" }}</td>
+                    <td>{{ cliente.id_municipio|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-light">Nenhum cliente encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    {% include 'components/_pagination.html' %}
+</div>
+{% endblock %}

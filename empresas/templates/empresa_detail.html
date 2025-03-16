@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6 text-light">Detalhes da Empresa</h3>
+
+    <div class="card shadow-sm bg-dark text-light">
+        <div class="card-body">
+            <div class="row">
+                <!-- Informação Principal -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Código da Empresa</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cd_empresa|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">CNPJ</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.numero_cnpj|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Nome da Empresa</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_empresa|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Razão Social</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_razao_social|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Nome Fantasia</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_fantasia|default:"Não informado" }}
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">Endereço</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_endereco|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Número</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.numero_endereco|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Complemento</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_complemento|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Bairro</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_bairro|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">CEP</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.numero_cep|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Cidade</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.id_municipio.nome_municipio|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">UF</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.sg_uf|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">País</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cd_pais|default:"Não informado" }}
+                    </div>
+                </div>
+
+                <!-- Contato -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Telefone</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.numero_telefone|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">E-mail Administrativo</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_email_administrativo|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">E-mail Geral</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_email_geral|default:"Não informado" }}
+                    </div>
+                </div>
+
+                <!-- Informações Adicionais -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {% if object.st_empresa == "A" %}
+                            Ativo
+                        {% elif object.st_empresa == "D" %}
+                            Desativado
+                        {% else %}
+                            Não informado
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Domínio SMI</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_dominio_smi|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Domínio do Cliente</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.nome_dominio_cliente|default:"Não informado" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'empresa_update' object.pk %}" class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-pencil"></i> Editar Empresa
+                </a>
+                <a href="{% url 'empresa_list' %}" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left"></i> Voltar para Lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

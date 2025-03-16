@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Cadastrar Veículo</h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <!-- Formulário de Cadastro -->
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row">
+                    {% for field in form %}
+                        {% if field.name not in 'in_domingo in_segunda in_terca in_quarta in_quinta in_sexta in_sabado' %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Dia de Publicação -->
+                <div class="row mb-3">
+                    <label class="form-label">Dia de Publicação</label>
+                    <div class="col-12">
+                        <div class="form-check form-check-inline">
+                            {{ form.in_domingo }} <label class="form-check-label" for="{{ form.in_domingo.id_for_label }}">Dom</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            {{ form.in_segunda }} <label class="form-check-label" for="{{ form.in_segunda.id_for_label }}">Seg</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            {{ form.in_terca }} <label class="form-check-label" for="{{ form.in_terca.id_for_label }}">Ter</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            {{ form.in_quarta }} <label class="form-check-label" for="{{ form.in_quarta.id_for_label }}">Qua</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            {{ form.in_quinta }} <label class="form-check-label" for="{{ form.in_quinta.id_for_label }}">Qui</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            {{ form.in_sexta }} <label class="form-check-label" for="{{ form.in_sexta.id_for_label }}">Sex</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            {{ form.in_sabado }} <label class="form-check-label" for="{{ form.in_sabado.id_for_label }}">Sáb</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-save"></i> Salvar Veículo
+                    </button>
+                    <a href="{% url 'veiculo_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+<div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3 text-white bg-dark min-vh-100" id="sidebar">
+  <div class="collapse d-sm-block" id="menuCollapse">
+    <ul class="nav flex-column align-items-start" id="menu">
+      <li>
+        <a href="#" class="nav-link px-0 align-middle">
+          <i class="bi bi-speedometer2 fs-3"></i>
+          <span class="ms-1">Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cliente_list' %}" class="nav-link px-0 align-middle">
+          <i class="bi bi-person fs-3"></i>
+          <span class="ms-1">Clientes</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link px-0 align-middle">
+          <i class="bi bi-gear fs-3"></i>
+          <span class="ms-1">Configurações</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'empresa_list' %}" class="nav-link px-0 align-middle">
+          <i class="bi bi-building fs-3"></i>
+          <span class="ms-1">Empresas</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'noticia_list' %}" class="nav-link px-0 align-middle">
+          <i class="bi bi-newspaper fs-3"></i>
+          <span class="ms-1">Notícias</span>
+        </a>
+      </li>
+      <li>
+      <li>
+        <a href="#" class="nav-link px-0 align-middle">
+          <i class="bi bi-file-earmark-text fs-3"></i>
+          <!-- <i class="bi bi-file-earmark-bar-graph"></i> -->
+          <span class="ms-1">Relatórios</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'veiculo_list' %}" class="nav-link px-0 align-middle">
+          <i class="bi bi-columns fs-3"></i>
+          <span class="ms-1">Veículos</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

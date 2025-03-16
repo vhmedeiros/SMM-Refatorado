@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6 text-light">Detalhes da Notícia</h3>
+
+    <div class="card shadow-sm bg-dark text-light">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">ID da Importação</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.id_importacao|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Data da Importação</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.dt_importacao|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Data da Notícia</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.dt_noticia|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Veículo</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cd_veiculo|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">Título</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.titulo|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">Subtítulo</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.subtitulo|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">URL da Notícia</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {% if object.ds_url %}
+                        <a href="{{ object.ds_url }}" target="_blank" class="text-info">{{ object.ds_url }}</a>
+                        {% else %}
+                        Não informado
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Colunista</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.no_colunista|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">URL da Mídia</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {% if object.ds_url_media %}
+                        <a href="{{ object.ds_url_media }}" target="_blank" class="text-info">{{ object.ds_url_media }}</a>
+                        {% else %}
+                        Não informado
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">ID da Editoria</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.id_editoria|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Código da Página</label>
+                    <div class="form-control bg-dark border border-secondary text-light">
+                        {{ object.cd_pagina|default:"Não informado" }}
+                    </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">Conteúdo</label>
+                    <div class="p-2 border border-secondary rounded bg-dark text-light" style="min-height: 150px;">
+                        {{ object.conteudo|linebreaks|default:"Não informado" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'noticia_update' object.pk %}" class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-pencil"></i> Editar Notícia
+                </a>
+                <a href="{% url 'noticia_list' %}" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left"></i> Voltar para Lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
