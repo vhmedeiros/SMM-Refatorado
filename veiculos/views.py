@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.urls import reverse_lazy
@@ -21,19 +22,20 @@ class VeiculoListView(ListView):
         nome_veiculo = self.request.GET.get("nome_veiculo")
 
         if nome_veiculo:
-            nome_veiculo_normalizado = unidecode(nome_veiculo)  # Para lidar com acentos
-            # Adiciona uma coluna calculada ao queryset
-            queryset = queryset.annotate(
-                nome_sem_acento=RawSQL(
-                    "dbo.RemoverAcentos(NmoVei)",
-                    [],  # tem que ser o nome da coluna da tabela e não da variavel - NmoVei, não nome_veiculo
+            if nome_veiculo.isdigit():  # Se for um número, pesquisar por ID do veículo (cd_veiculo)
+                queryset = queryset.filter(cd_veiculo=nome_veiculo)
+            else:
+                nome_veiculo_normalizado = unidecode(nome_veiculo)  # Para lidar com acentos
+                # Adiciona uma coluna calculada ao queryset para busca sem acento
+                queryset = queryset.annotate(
+                    nome_sem_acento=RawSQL(
+                        "dbo.RemoverAcentos(NmoVei)",
+                        [],
+                    )
+                ).filter(
+                    Q(nome_sem_acento__icontains=nome_veiculo_normalizado)  # Busca sem acento
+                    | Q(nome_veiculo__icontains=nome_veiculo)  # Busca com acento
                 )
-            ).filter(
-                Q(
-                    nome_sem_acento__icontains=nome_veiculo_normalizado
-                )  # Busca sem acento
-                | Q(nome_veiculo__icontains=nome_veiculo)  # Busca com acento
-            )
         return queryset
 
 
@@ -76,3 +78,13 @@ class VeiculoUpdateView(UpdateView):
     template_name = "veiculo_update.html"
     form_class = forms.VeiculoForm
     success_url = reverse_lazy("veiculo_list")
+
+
+def buscar_municipios(request):
+    """Retorna os municípios de uma UF específica"""
+    cd_uf = request.GET.get("cd_uf")
+    if cd_uf:
+        municipios = models.Municipio.objects.filter(uf_municipio__cd_uf=cd_uf).values("id_municipio", "nome_municipio")
+        return JsonResponse(list(municipios), safe=False)
+    return JsonResponse([], safe=False)
+

@@ -4,6 +4,7 @@ __pycache__/
 db.sqlite3
 /media/
 *.log
+django.log
 
 # Configuração
 .env
@@ -17,3 +18,10 @@ venv/
 
 # Git
 .git/
+
+#BD
+db.sqlite3
+
+#outros
+SMM-Refatorado.zip
+planoGPT.txt 

@@ -1,56 +1,103 @@
 {% extends 'base.html' %}
 
-{% block title %}Cadastrar Notícia{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
-    <h3 class="display-6">Cadastrar Notícia</h3>
+    <h3 class="display-6">Cadastrar Nova Notícia</h3>
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="veiculo" class="form-label">Veículo</label>
-                {{ form.cd_veiculo }}
+    <div class="card shadow-sm bg-dark text-light p-4">
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Erros encontrados:</strong>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
             </div>
-            <div class="col-md-6 mb-3">
-                <label for="data_importacao" class="form-label">Data de Importação</label>
-                {{ form.dt_importacao }}
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="data_noticia" class="form-label">Data da Notícia</label>
-                {{ form.dt_noticia }}
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="titulo" class="form-label">Título</label>
-                {{ form.titulo }}
-            </div>
-            <div class="col-md-12 mb-3">
-                <label for="subtitulo" class="form-label">Subtítulo</label>
-                {{ form.subtitulo }}
-            </div>
-            <div class="col-md-12 mb-3">
-                <label for="conteudo" class="form-label">Conteúdo</label>
-                <textarea id="{{ form.conteudo.id_for_label }}" name="{{ form.conteudo.html_name }}" class="form-control" rows="10" placeholder="Digite o conteúdo da notícia aqui...">{{ form.conteudo.value }}</textarea>
-            </div>
-            <div class="col-md-12 mb-3">
-                <label for="link_noticia" class="form-label">Link da Notícia</label>
-                {{ form.ds_url }}
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="colunista" class="form-label">Colunista</label>
-                {{ form.no_colunista }}
-            </div>
-        </div>
+            {% endif %}
 
-        <div class="d-flex justify-content-start">
-            <button type="submit" class="btn btn-outline-primary me-2">
-                <i class="bi bi-save"></i> Salvar
-            </button>
-            <a href="{% url 'noticia_list' %}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Cancelar
-            </a>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row">
+                    <!-- Seleção de Veículo -->
+                    <div class="col-md-6 mb-3 position-relative">
+                        <label for="veiculo-autocomplete" class="form-label">Veículo</label>
+                        <div class="input-group">
+                            <input type="text" id="veiculo-autocomplete" name="veiculo_nome" class="form-control"
+                                   placeholder="Digite ou selecione um veículo">
+                            <button type="button" class="btn btn-primary" onclick="abrirPopupVeiculos()">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="cd_veiculo" name="cd_veiculo" value="{{ form.cd_veiculo.value }}">
+                    </div>
+
+                    <!-- Data de Cadastro -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.dt_importacao.id_for_label }}" class="form-label">Data de Cadastro</label>
+                        {{ form.dt_importacao }}
+                    </div>
+
+                    <!-- Data de Publicação -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.dt_noticia.id_for_label }}" class="form-label">Data de Publicação</label>
+                        {{ form.dt_noticia }}
+                    </div>
+
+                    <!-- Campo de URL -->
+                    <div class="col-md-12 mb-3">
+                        <label for="{{ form.ds_url.id_for_label }}" class="form-label">URL da Notícia</label>
+                        {{ form.ds_url }}
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        {{ form.titulo.label_tag }}
+                        {{ form.titulo }}
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        {{ form.conteudo.label_tag }}
+                        {{ form.conteudo }}
+                    </div>
+
+                    <!-- Upload de Imagem -->
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Imagem da Notícia</label>
+                        {{ form.imagem }}
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus-lg"></i> Cadastrar Notícia
+                    </button>
+                    <a href="{% url 'noticia_list' %}" class="btn btn-secondary ms-2">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
+
+<script>
+    function abrirPopupVeiculos() {
+        let url = "{% url 'buscar_veiculos_popup' %}";
+        let popup = window.open(url, "Selecionar Veículo", "width=800,height=600");
+
+        window.addEventListener("message", function(event) {
+            if (event.data && event.data.veiculo_id) {
+                document.getElementById("cd_veiculo").value = event.data.veiculo_id;
+                document.getElementById("veiculo-autocomplete").value = event.data.veiculo_nome;
+                popup.close();
+            }
+        });
+    }
+</script>
+
 {% endblock %}

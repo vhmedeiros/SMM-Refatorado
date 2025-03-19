@@ -12,9 +12,13 @@ class ClienteListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         nome_cliente = self.request.GET.get("nome_cliente")
+        buscar_todos = self.request.GET.get("buscar_todos")
 
         if nome_cliente:
             queryset = queryset.filter(nome_cliente__icontains=nome_cliente)
+
+        if not buscar_todos:
+            queryset = queryset.filter(status_cliente="A")
 
         return queryset
 

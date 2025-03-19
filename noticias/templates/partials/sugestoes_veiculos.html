@@ -1,0 +1,15 @@
+{% if veiculos %}
+    <div class="dropdown-menu show" style="width: 100%;">
+        {% for v in veiculos %}
+            <button type="button" class="dropdown-item"
+                    hx-on:click="document.getElementById('veiculo-autocomplete').value = '{{ v.nome_veiculo }}';
+                                 document.getElementById('sugestoes-veiculo').classList.remove('show');">
+                {{ v.nome_veiculo }}
+            </button>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="dropdown-menu show" style="width: 100%;">
+        <button class="dropdown-item disabled">Nenhum veículo encontrado</button>
+    </div>
+{% endif %}

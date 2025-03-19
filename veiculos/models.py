@@ -76,7 +76,7 @@ class Uf(models.Model):
 class Municipio(models.Model):
     id_municipio = models.IntegerField(primary_key=True)
     id_mesorregiao = models.SmallIntegerField()
-    uf_municipio = models.ForeignKey(Uf, models.PROTECT, db_column="uf_municipio")
+    uf_municipio = models.ForeignKey(Uf, models.PROTECT, db_column="uf_municipio", to_field="cd_uf" , related_name="municipios")
     nome_municipio = models.CharField(
         db_column="no_municipio",
         max_length=50,

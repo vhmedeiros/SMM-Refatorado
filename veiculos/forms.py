@@ -1,5 +1,5 @@
 from django import forms
-from .models import Veiculosistemas
+from .models import Veiculosistemas, Municipio, Uf
 
 
 class VeiculoForm(forms.ModelForm):
@@ -86,8 +86,8 @@ class VeiculoForm(forms.ModelForm):
                 attrs={"class": "form-select"},
                 choices=[(i, f"{i:02d} - Prioridade") for i in range(6)],
             ),
-            "cd_uf": forms.Select(attrs={"class": "form-select"}),
-            "id_municipio": forms.Select(attrs={"class": "form-select"}),
+            "cd_uf": forms.Select(attrs={"class": "form-select", "id": "uf-select"}),
+            "id_municipio": forms.Select(attrs={"class": "form-select", "id": "municipio-select"}),
             "cd_pais": forms.Select(attrs={"class": "form-select"}),
             "cd_lingua": forms.Select(attrs={"class": "form-select"}),
             "tipo_veiculo": forms.Select(attrs={"class": "form-select"}),
@@ -189,3 +189,16 @@ class VeiculoForm(forms.ModelForm):
             cleaned_data[dia] = "S" if cleaned_data.get(dia) else "N"
 
         return cleaned_data
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            
+            # Se houver uma UF selecionada, carregar apenas os municípios dessa UF
+            if "cd_uf" in self.data:
+                try:
+                    uf_id = self.data.get("cd_uf")  # Obtém a UF selecionada
+                    self.fields["id_municipio"].queryset = Municipio.objects.filter(uf_municipio=uf_id)
+                except (ValueError, TypeError):
+                    self.fields["id_municipio"].queryset = Municipio.objects.none()
+            elif self.instance.pk:
+                self.fields["id_municipio"].queryset = Municipio.objects.filter(uf_municipio=self.instance.cd_uf)

@@ -11,10 +11,10 @@ SMM - Veículos
     <!-- Filtro de Pesquisa e Botão de Cadastro -->
     <div class="row mb-3">
         <div class="col-md-6">
-            <!-- Formulário de Pesquisa -->
             <form method="get" action="{% url 'veiculo_list' %}">
                 <div class="input-group">
-                    <input type="text" class="form-control" name="nome_veiculo" placeholder="Procurar Veículos" value="{{ request.GET.nome_veiculo }}">
+                    <input type="text" class="form-control" name="nome_veiculo"
+                           placeholder="Buscar por Nome ou ID" value="{{ request.GET.nome_veiculo }}">
                     <button type="submit" class="btn btn-outline-primary">
                         <i class="bi bi-search"></i> Buscar
                     </button>

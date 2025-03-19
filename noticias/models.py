@@ -19,7 +19,7 @@ class NoticiaImportada(models.Model):
         Veiculosistemas, models.DO_NOTHING, db_column="id_veiculo"
     )
     ds_url = models.CharField(
-        max_length=500,
+        max_length=500, blank=True, null=True
     )
     subtitulo = models.CharField(
         db_column="tt_sutia", max_length=1000, blank=True, null=True
@@ -31,6 +31,7 @@ class NoticiaImportada(models.Model):
     clientes_relacionados = models.TextField(blank=True, null=True)
     categorias_relacionadas = models.TextField(blank=True, null=True)
     processado = models.BooleanField(blank=True, null=True, default=False)
+    imagem = models.ImageField(upload_to="noticias/", blank=True, null=True, verbose_name="Imagem")
 
     class Meta:
         managed = False

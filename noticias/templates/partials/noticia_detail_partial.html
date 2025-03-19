@@ -1,4 +1,12 @@
 <div>
+    <!-- Exibir a imagem se houver -->
+    {% if noticia.imagem %}
+        <div class="text-center mb-3">
+            <img src="{{ noticia.imagem.url }}" alt="Imagem da Notícia" class="img-fluid rounded shadow-sm"
+                 style="max-width: 100%;">
+        </div>
+    {% endif %}
+
     <h4>{{ noticia.titulo }}</h4>
     <p><strong>Veículo:</strong> {{ noticia.cd_veiculo.nome_veiculo|default:"Sem veículo" }}</p>
     <p><strong>Data de Publicação:</strong> {{ noticia.dt_noticia|date:"d/m/Y" }}</p>
