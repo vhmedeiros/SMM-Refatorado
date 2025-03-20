@@ -40,6 +40,7 @@ class ErpContratoCreateView(CreateView):
     template_name = "contrato_create.html"
 
     def form_valid(self, form):
+        
         # obetem o ID do cliente a partir dos parametros da URL
         # a propriedade 'kwargs' armazena os parametros da URL
         # e o metodo 'get' retorna o valor do parametro 'cliente_id'

@@ -1,47 +1,61 @@
-<div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3 text-white bg-dark min-vh-100" id="sidebar">
+<div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3 bg-dark min-vh-100" id="sidebar">
   <div class="collapse d-sm-block" id="menuCollapse">
     <ul class="nav flex-column align-items-start" id="menu">
       <li>
-        <a href="#" class="nav-link px-0 align-middle">
-          <i class="bi bi-speedometer2 fs-3"></i>
+        <a href="#" class="nav-link px-0 align-middle text-primary">
+          <i class="bi bi-speedometer2 fs-5 text-primary"></i>
           <span class="ms-1">Dashboard</span>
         </a>
       </li>
       <li>
-        <a href="{% url 'cliente_list' %}" class="nav-link px-0 align-middle">
-          <i class="bi bi-person fs-3"></i>
+        <a href="{% url 'cliente_list' %}" class="nav-link px-0 align-middle text-primary">
+          <i class="bi bi-person fs-5 text-primary"></i>
           <span class="ms-1">Clientes</span>
         </a>
       </li>
-      <li>
-        <a href="#" class="nav-link px-0 align-middle">
-          <i class="bi bi-gear fs-3"></i>
-          <span class="ms-1">Configurações</span>
+
+      <!-- Configurações com Submenu -->
+      <li class="nav-item">
+        <a href="{% url 'config_cliente_list' %}" 
+           class="nav-link px-0 align-middle text-primary d-flex justify-content-between align-items-center" 
+           data-bs-toggle="collapse" data-bs-target="#configMenu">
+            <div>
+                <i class="bi bi-gear fs-5 text-primary"></i>
+                <span class="ms-1">Configurações</span>
+            </div>
+            <i class="bi bi-chevron-down fs-6 text-primary ms-2"></i>
         </a>
+        <ul class="collapse list-unstyled ms-3" id="configMenu">
+            <li><a href="{% url 'config_cliente_list' %}" class="nav-link text-primary"><i class="bi bi-search fs-6 me-2"></i> Buscar Cliente</a></li>
+            <li><a href="#" class="nav-link text-primary validar-cliente"><i class="bi bi-pencil-square fs-6 me-2"></i> Cadastro</a></li>
+            <li><a href="#" class="nav-link text-primary validar-cliente"><i class="bi bi-key fs-6 me-2"></i> Palavras-Chave</a></li>
+            <li><a href="#" class="nav-link text-primary validar-cliente"><i class="bi bi-browser-chrome fs-6 me-2"></i> Site do Cliente</a></li>
+            <li><a href="#" class="nav-link text-primary validar-cliente"><i class="bi bi-envelope fs-6 me-2"></i> E-mails</a></li>
+            <li><a href="#" class="nav-link text-primary validar-cliente"><i class="bi bi-shield-lock fs-6 me-2"></i> Segurança</a></li>
+        </ul>
       </li>
+
       <li>
-        <a href="{% url 'empresa_list' %}" class="nav-link px-0 align-middle">
-          <i class="bi bi-building fs-3"></i>
+        <a href="{% url 'empresa_list' %}" class="nav-link px-0 align-middle text-primary">
+          <i class="bi bi-building fs-5 text-primary"></i>
           <span class="ms-1">Empresas</span>
         </a>
       </li>
       <li>
-        <a href="{% url 'noticia_list' %}" class="nav-link px-0 align-middle">
-          <i class="bi bi-newspaper fs-3"></i>
+        <a href="{% url 'noticia_list' %}" class="nav-link px-0 align-middle text-primary">
+          <i class="bi bi-newspaper fs-5 text-primary"></i>
           <span class="ms-1">Notícias</span>
         </a>
       </li>
       <li>
-      <li>
-        <a href="#" class="nav-link px-0 align-middle">
-          <i class="bi bi-file-earmark-text fs-3"></i>
-          <!-- <i class="bi bi-file-earmark-bar-graph"></i> -->
+        <a href="#" class="nav-link px-0 align-middle text-primary">
+          <i class="bi bi-file-earmark-text fs-5 text-primary"></i>
           <span class="ms-1">Relatórios</span>
         </a>
       </li>
       <li>
-        <a href="{% url 'veiculo_list' %}" class="nav-link px-0 align-middle">
-          <i class="bi bi-columns fs-3"></i>
+        <a href="{% url 'veiculo_list' %}" class="nav-link px-0 align-middle text-primary">
+          <i class="bi bi-columns fs-5 text-primary"></i>
           <span class="ms-1">Veículos</span>
         </a>
       </li>

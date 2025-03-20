@@ -207,6 +207,13 @@ class ErpCliente(models.Model):
     id_ultimo_servico_pago = models.IntegerField(
         blank=True, null=True, verbose_name="ID do Último Serviço Pago"
     )
+    sigla_cliente = models.CharField(
+        db_column="sigla_cliente",
+        max_length=10,
+        blank=True,
+        null=True,
+        verbose_name="Sigla do Cliente",
+    )
 
     class Meta:
         managed = False

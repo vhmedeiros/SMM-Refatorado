@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
+from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from unidecode import unidecode
@@ -18,27 +19,26 @@ class VeiculoListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = models.Veiculosistemas.objects.none()  # 🔹 Lista vazia por padrão
         nome_veiculo = self.request.GET.get("nome_veiculo")
 
-        if nome_veiculo:
-            if nome_veiculo.isdigit():  # Se for um número, pesquisar por ID do veículo (cd_veiculo)
+        if nome_veiculo:  # 🔹 Só busca se houver um termo pesquisado
+            queryset = super().get_queryset()
+
+            if nome_veiculo.isdigit():  # 🔹 Se for número, busca pelo ID
                 queryset = queryset.filter(cd_veiculo=nome_veiculo)
             else:
-                nome_veiculo_normalizado = unidecode(nome_veiculo)  # Para lidar com acentos
-                # Adiciona uma coluna calculada ao queryset para busca sem acento
+                nome_veiculo_normalizado = unidecode(nome_veiculo)  # 🔹 Remove acentos para busca
                 queryset = queryset.annotate(
                     nome_sem_acento=RawSQL(
                         "dbo.RemoverAcentos(NmoVei)",
                         [],
                     )
                 ).filter(
-                    Q(nome_sem_acento__icontains=nome_veiculo_normalizado)  # Busca sem acento
-                    | Q(nome_veiculo__icontains=nome_veiculo)  # Busca com acento
+                    Q(nome_sem_acento__icontains=nome_veiculo_normalizado)  # 🔹 Busca sem acento
+                    | Q(nome_veiculo__icontains=nome_veiculo)  # 🔹 Busca com acento
                 )
         return queryset
-
-
 class VeiculoCreateView(CreateView):
     model = models.Veiculosistemas
     template_name = "veiculo_create.html"

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Clientes - Configuração{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Configuração de Clientes</h3>
+    <form method="get" action="{% url 'config_cliente_list' %}">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="nome_cliente" class="form-label"></label>
+                <input type="text" name="nome_cliente" id="nome_cliente" class="form-control" placeholder="Buscar cliente">
+            </div>
+            <div class="col-md-3 d-flex align-items-center mt-4">
+                <input type="checkbox" name="buscar_todos" id="buscar_todos" class="form-check-input">
+                <label for="buscar_todos" class="form-check-label ms-2">Buscar Todos</label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-outline-primary">Buscar</button>
+    </form>
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Ações</th>
+                <th>Nome</th>
+                <th>Status</th>
+                <th>Sigla</th>
+                <th>Prestadora de Serviço</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr class="clickable-row" data-href="{% url 'config_cliente_redirect' cliente.id_cliente %}" style="cursor: pointer;">
+                <td>
+                    <a href="{% url 'config_cliente_redirect' cliente.id_cliente %}" class="btn btn-info btn-sm p-1" title="Visualizar">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </td>
+                <td>{{ cliente.nome_cliente }}</td>
+                <td>{{ cliente.status_cliente }}</td>
+                <td>{{ cliente.sigla_cliente|default:"-" }}</td>
+                <td>{{ cliente.empresa_prestadora|default:"-" }}</td>
+            
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".clickable-row").forEach(function(row) {
+            row.addEventListener("click", function() {
+                window.location = this.getAttribute("data-href");
+            });
+        });
+    });
+</script>
+{% endblock %}

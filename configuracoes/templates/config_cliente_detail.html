@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Configuração do Cliente - {{ cliente.nome_cliente }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Configuração de {{ cliente.nome_cliente }}</h3>
+
+    <!-- Seção de Eventos -->
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Últimos Eventos</h5>
+        </div>
+        <div class="card-body">
+            {% if eventos %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Data e Hora</th>
+                            <th>Descrição</th>
+                            <th>Usuário</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evento in eventos %}
+                        <tr>
+                            <td>{{ evento.data_hora|date:"d/m/Y H:i:s" }}</td>
+                            <td>{{ evento.descricao }}</td>
+                            <td>{{ evento.usuario.username|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">Nenhum evento registrado.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

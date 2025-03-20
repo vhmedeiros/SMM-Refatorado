@@ -15,16 +15,25 @@ class NoticiaListView(ListView):
     model = NoticiaImportada
     template_name = "noticia_list.html"
     context_object_name = "noticias"
-    paginate_by = 50
+    paginate_by = 50 # colocar para 10
 
     def get_queryset(self):
-        queryset = NoticiaImportada.objects.select_related("cd_veiculo").order_by("-dt_noticia")
+        # queryset = NoticiaImportada.objects.select_related("cd_veiculo").order_by("-dt_noticia")
+        
 
         search = self.request.GET.get("search", "").strip()
         veiculo_nome = self.request.GET.get("veiculo", "").strip()
         estado = self.request.GET.get("uf", "").strip()
         data_inicio = self.request.GET.get("data_inicio", "")
         data_fim = self.request.GET.get("data_fim", "")
+
+        # 🔹 Definir queryset inicial
+        if search or veiculo_nome or estado or data_inicio or data_fim:
+            queryset = NoticiaImportada.objects.select_related("cd_veiculo").order_by("-dt_noticia")
+        else:
+            queryset = NoticiaImportada.objects.select_related("cd_veiculo").order_by("-dt_noticia")
+            # 🔹 Se quiser que a lista inicie vazia, descomente a linha abaixo
+            queryset = NoticiaImportada.objects.none()
 
         if search:
             queryset = queryset.filter(Q(titulo__icontains=search) | Q(conteudo__icontains=search))
@@ -57,32 +66,13 @@ class NoticiaListView(ListView):
         context["veiculos"] = Veiculosistemas.objects.all()  # Veículos disponíveis
         context["data_inicio"] = self.request.GET.get("data_inicio", str(date.today()))
         context["data_fim"] = self.request.GET.get("data_fim", str(date.today()))
-        return context    
+        return context
+        
 class NoticiaCreateView(CreateView):
     model = NoticiaImportada
     form_class = NoticiaForm
     template_name = "noticia_create.html"
     success_url = reverse_lazy("noticia_list")
-
-    # def form_valid(self, form):
-    #     noticia = form.save(commit=False)
-
-    #     # Preenchendo a data de importação automaticamente
-
-    #     # Verificar se o campo veículo foi preenchido corretamente
-    #     cd_veiculo = self.request.POST.get("cd_veiculo")
-    #     if cd_veiculo:
-    #         noticia.cd_veiculo_id = cd_veiculo
-    #     else:
-    #         form.add_error(None, "Erro: Veículo não foi selecionado corretamente.")
-    #         return self.form_invalid(form)
-
-    #     noticia.save()
-    #     return super().form_valid(form)
-
-    def form_valid(self, form):
-        form.instance.cd_veiculo_id = self.request.POST.get("cd_veiculo")  # Salva o ID do veículo certo
-        return super().form_valid(form)
 
 class NoticiaDetailView(DetailView):
     model = NoticiaImportada
@@ -100,16 +90,7 @@ class NoticiaUpdateView(UpdateView):
     form_class = NoticiaForm
     success_url = reverse_lazy("noticia_list")
 
-    # def form_valid(self, form):
-    #     noticia = form.save(commit=False)
-    #     if self.request.FILES.get("imagem"):
-    #         noticia.imagem = self.request.FILES["imagem"]
-    #     noticia.save()
-    #     return super().form_valid(form)
 
-    def form_valid(self, form):
-        form.instance.cd_veiculo_id = self.request.POST.get("cd_veiculo")  # Atualiza corretamente
-        return super().form_valid(form)
 
 def buscar_cidades(request):
     uf = request.GET.get("uf")
@@ -150,35 +131,6 @@ def buscar_veiculos(request):
 
     return HttpResponse(html)
 
-# def buscar_veiculos_popup(request):
-#     query = request.GET.get("q", "").strip()
-#     tipo_veiculo = request.GET.get("tipo_veiculo", "").strip()
-#     estado = request.GET.get("estado", "").strip()
-
-#     # 🔥 Buscar apenas veículos ativos (situacao_veiculo == 'A')
-#     veiculos = Veiculosistemas.objects.filter(situacao_veiculo='A')
-
-#     if query:
-#         veiculos = veiculos.filter(nome_veiculo__icontains=query)
-#     if tipo_veiculo:
-#         veiculos = veiculos.filter(tipo_veiculo__tipo_veiculo=tipo_veiculo)
-#     if estado:
-#         veiculos = veiculos.filter(cd_uf__cd_uf=estado)
-
-#     # 🔥 Limitar a 100 resultados para evitar lentidão
-#     veiculos = veiculos[:100]
-
-#     # Buscar tipos de veículos e estados únicos
-#     tipos_veiculo = TipoVeiculo.objects.all()
-#     estados = Uf.objects.all()
-
-#     return render(request, "veiculos_popup.html", {
-#         "veiculos": veiculos,
-#         "tipos_veiculo": tipos_veiculo,
-#         "estados": estados
-#     })
-
-
 def buscar_veiculos_popup(request):
     # 🚀 Obtém os veículos ativos do cache, se disponível
     veiculos = cache.get("veiculos_ativos")
@@ -218,33 +170,3 @@ def buscar_veiculos_popup(request):
         "tipos_veiculo": tipos_veiculo,
         "estados": estados
     })
-
-
-# def buscar_veiculos_popup(request):
-#     """Exibe a listagem dos veículos ativos e permite filtrar por estado e tipo"""
-#     nome = request.GET.get("q", "").strip()
-#     tipo = request.GET.get("tipo_veiculo", "").strip()
-#     estado = request.GET.get("estado", "").strip()
-
-#     # 🔥 Filtrando veículos ativos
-#     veiculos = Veiculosistemas.objects.filter(situacao_veiculo="A")
-
-#     if nome:
-#         veiculos = veiculos.filter(nome_veiculo__icontains=nome)
-#     if tipo:
-#         veiculos = veiculos.filter(tipo_veiculo_id=tipo)
-#     if estado:
-#         veiculos = veiculos.filter(cd_uf_id=estado)
-
-#     # 🔥 Ordenar e limitar para evitar lentidão
-#     veiculos = veiculos.order_by("nome_veiculo")[:100]
-
-#     # Carregar os filtros corretamente
-#     tipos_veiculo = TipoVeiculo.objects.all()
-#     estados = Uf.objects.all()
-
-#     return render(request, "veiculos_popup.html", {
-#         "veiculos": veiculos,
-#         "tipos_veiculo": tipos_veiculo,
-#         "estados": estados,
-#     })

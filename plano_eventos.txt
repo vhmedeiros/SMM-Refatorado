@@ -1,0 +1,74 @@
+### **📌 Como Registrar Apenas Eventos de Alteração e Criação?**
+Atualmente, os eventos **estão sendo registrados para qualquer ação, incluindo pesquisas e visualizações**. Mas queremos **registrar eventos apenas quando houver criação ou alteração de registros**.  
+
+Para isso, **vamos modificar o sistema de eventos para capturar somente eventos relevantes**.
+
+---
+
+## **📌 Plano de Implementação**
+### **1️⃣ Definir Quais Ações Devem Gerar um Evento**
+Devemos registrar eventos apenas quando:
+✅ **Um novo registro for criado** (**"Criado"**)  
+✅ **Um registro for alterado** (**"Alterado"**)  
+✅ **Um registro for excluído** (**"Excluído"**, se necessário)  
+
+🚫 **Não registramos eventos para buscas ou visualizações de detalhes**.
+
+---
+
+### **2️⃣ Como Detectar Essas Ações?**
+Para capturar **apenas eventos de criação e alteração**, usaremos a lógica dentro do método `form_valid()` das **CBVs de CreateView e UpdateView**.
+
+- **Ao criar um novo registro (`CreateView`)**, registramos **"Criado"**.  
+- **Ao atualizar um registro existente (`UpdateView`)**, verificamos **quais campos foram modificados** e registramos **"Alterado"**.  
+
+Isso evita que eventos desnecessários sejam criados.
+
+---
+
+### **3️⃣ Criar uma Função para Verificar se um Registro foi Modificado**
+Para capturar **se um campo foi alterado**, **antes de salvar o formulário**, podemos comparar os valores antigos com os novos.
+
+A lógica será:
+1️⃣ **Buscar o objeto original no banco de dados**.  
+2️⃣ **Comparar os valores dos campos antes e depois da edição**.  
+3️⃣ **Se houver alteração, registrar um evento**.  
+
+---
+
+### **4️⃣ Ajustar os Eventos no `form_valid()`**
+- **Na `CreateView`** → O evento será sempre **"Criado"**.  
+- **Na `UpdateView`** → Só registramos um evento se os dados realmente mudaram.  
+
+---
+
+## **📌 Exemplo de Como o Evento Deve Ficar no Banco**
+Caso um usuário altere um e-mail dentro do sistema, o evento salvo deve ser algo como:
+
+```
+19/03/2025 12:11:32	
+Banco do Brasil S/A SITE - SISTEMA DE E-MAIL - E-MAIL ALTERADO. 
+--------------------------------------------------------
+Conteúdo: 318000|CCD|36163||Boletim Digov - Governador Federal 
+--------------------------------------------------------
+Usuário: aldeide
+```
+
+Ou, caso seja um novo registro:
+
+```
+19/03/2025 10:35:20
+Novo veículo cadastrado: Jornal Nacional - RJ
+Usuário: admin
+```
+
+---
+
+## **📌 Próximos Passos**
+✅ **Modificar o `form_valid()` para capturar apenas eventos de criação e alteração**.  
+✅ **Criar uma função auxiliar para detectar mudanças nos campos**.  
+✅ **Testar criando e editando registros para garantir que os eventos são gerados corretamente**.  
+
+---
+
+🚀 **Agora estamos prontos para ajustar a implementação! Me avise quando quiser seguir com os códigos.**

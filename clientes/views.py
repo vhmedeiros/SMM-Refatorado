@@ -29,7 +29,6 @@ class ClienteCreateView(CreateView):
     form_class = forms.ClienteForm
     success_url = reverse_lazy("cliente_list")
 
-
 class ClienteDetailView(DetailView):
     model = models.ErpCliente
     template_name = "cliente_detail.html"

@@ -34,9 +34,6 @@
             {{ noticia.dt_noticia|date:"d/m/Y" }}
         </td>
     </tr>
-    {% empty %}
-    <tr>
-        <td colspan="4" class="text-center text-light">Nenhuma notícia encontrada.</td>
-    </tr>
+    <!-- -------AQUI ERA O TRATAMENTO PARA QUANDO NÃO SE TINHA NOTICIAS---------------- -->
     {% endfor %}
 </tbody>

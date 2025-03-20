@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "contratos",
     "emails",
     "empresas",
+    "eventos",
     "noticias",
     "relatorios",
     "veiculos",
