@@ -8,6 +8,23 @@
         <div class="card-body">
             <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 {% csrf_token %}
+                
+                <!-- Campo oculto para garantir que o ID do cliente seja enviado -->
+                <input type="hidden" name="id_cliente" value="{{ form.instance.id_cliente.id_cliente|default:form.initial.id_cliente }}">   
+
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Erro ao salvar:</strong>
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            <li>{{ field }}: {{ errors.0 }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+
 
                 <div class="row">
                     <!-- Nome do Cliente (Somente Leitura) -->

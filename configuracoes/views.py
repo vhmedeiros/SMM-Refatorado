@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.db import connection
 from datetime import datetime
 from django.utils.timezone import now, localtime
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from clientes.models import ErpCliente
 from contratos.models import ErpContrato
@@ -36,23 +36,64 @@ class ClienteConfigListView(ListView):
 
         return queryset
 
+# class ClienteConfigVisualCreateView(CreateView):
+#     model = ConfiguracaoCliente
+#     form_class = ConfiguracaoClienteForm
+#     template_name = "config_cliente_visual_update.html"
+
+#     def get_form_kwargs(self):
+#         """Passa o id_cliente explicitamente no form."""
+#         kwargs = super().get_form_kwargs()
+#         id_cliente = self.kwargs.get("id_cliente")
+#         cliente = get_object_or_404(ErpCliente, pk=id_cliente)
+#         kwargs["initial"] = {
+#             "id_cliente": cliente, 
+#             "nome_cliente_sistema": cliente.nome_cliente,
+#         }
+#         return kwargs
+
+#     def form_valid(self, form):
+#         """Força a associação correta do id_cliente antes de salvar."""
+#         id_cliente = self.kwargs.get("id_cliente")  
+#         cliente = get_object_or_404(ErpCliente, pk=id_cliente)  
+
+#         # Define manualmente o id_cliente no formulário antes do salvamento
+#         form.instance.id_cliente = cliente  
+
+#         # Salva corretamente
+#         self.object = form.save(commit=False)  
+#         self.object.id_cliente = cliente  # Garante que o ID seja preenchido
+#         self.object.save()
+
+#         return redirect("config_cliente_visual_update", pk=self.object.id_cliente.pk)
+
 class ClienteConfigVisualCreateView(CreateView):
     model = ConfiguracaoCliente
     form_class = ConfiguracaoClienteForm
     template_name = "config_cliente_visual_update.html"
 
-    def get_initial(self):
-        """Define valores iniciais para o formulário com base no cliente selecionado."""
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         id_cliente = self.kwargs.get("id_cliente")
-        cliente = get_object_or_404(ErpCliente, pk=id_cliente)
-        return {
-            "id_cliente": cliente,
-            "nome_cliente_sistema": cliente.nome_cliente,  # Ajuste conforme o campo real do cliente
-        }
+
+        if id_cliente:
+            cliente = get_object_or_404(ErpCliente, pk=id_cliente)
+            kwargs["id_cliente"] = cliente.id_cliente
+            kwargs.setdefault("initial", {})["id_cliente"] = cliente.id_cliente
+            kwargs.setdefault("initial", {})["nome_cliente_sistema"] = cliente.nome_cliente
+
+        return kwargs
 
     def form_valid(self, form):
-        """Salva a configuração e redireciona para a página de edição."""
-        self.object = form.save()
+        id_cliente = self.kwargs.get("id_cliente")
+        cliente = get_object_or_404(ErpCliente, pk=id_cliente)
+
+        form.instance.id_cliente = cliente
+        form.instance.nome_cliente_sistema = cliente.nome_cliente
+
+        self.object = form.save(commit=False)
+        self.object.save()
+
         return redirect("config_cliente_visual_update", pk=self.object.id_cliente.pk)
 
 class ClienteConfigDetailView(DetailView):
@@ -90,17 +131,26 @@ class ClienteConfigVisualUpdateView(UpdateView):
         self.object = form.save()
         return redirect("config_cliente_detail", pk=self.object.id_cliente.pk)
 
+# def config_cliente_redirect(request, id_cliente):
+#     """
+#     Redireciona para a página correta:
+#     - Se a configuração já existir, redireciona para o update.
+#     - Se não existir, redireciona para a criação de uma nova.
+#     """
+#     request.session["id_cliente"] = int(id_cliente)
+#     try:
+#         # Verifica se já existe uma configuração para o cliente
+#         config = ConfiguracaoCliente.objects.get(id_cliente=id_cliente)
+#         return redirect("config_cliente_visual_update", pk=config.id_cliente.pk)
+#     except ConfiguracaoCliente.DoesNotExist:
+#         # Se não existir, redireciona para criar uma nova configuração
+#         return redirect("config_cliente_visual_create", id_cliente=id_cliente)
+
+
 def config_cliente_redirect(request, id_cliente):
-    """
-    Redireciona para a página correta:
-    - Se a configuração já existir, redireciona para o update.
-    - Se não existir, redireciona para a criação de uma nova.
-    """
     request.session["id_cliente"] = int(id_cliente)
-    try:
-        # Verifica se já existe uma configuração para o cliente
-        config = ConfiguracaoCliente.objects.get(id_cliente=id_cliente)
-        return redirect("config_cliente_visual_update", pk=config.id_cliente.pk)
-    except ConfiguracaoCliente.DoesNotExist:
-        # Se não existir, redireciona para criar uma nova configuração
-        return redirect("config_cliente_visual_create", id_cliente=id_cliente)
+
+    if ConfiguracaoCliente.objects.filter(id_cliente=id_cliente).exists():
+        return redirect("config_cliente_visual_update", pk=id_cliente)
+
+    return redirect(reverse("config_cliente_visual_create", kwargs={"id_cliente": id_cliente}))
