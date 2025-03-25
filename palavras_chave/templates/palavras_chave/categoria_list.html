@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Gerenciar Palavras-Chave{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Categorias do Cliente: <strong>{{ cliente_selecionado.nome_cliente|title }}</strong></h3>
+
+    <!-- Botão para adicionar nova categoria -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'palavras_chave:categoria_create' cliente_selecionado.id_cliente %}" class="btn btn-success">
+            <i class="bi bi-folder-plus"></i> Nova Categoria
+        </a>
+    </div>
+
+    {% if categorias %}
+        <div class="accordion" id="accordionCategorias">
+            {% for categoria in categorias %}
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header" id="heading{{ categoria.id }}">
+                        <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ categoria.id }}" aria-expanded="false" aria-controls="collapse{{ categoria.id }}">
+                            <div class="d-flex justify-content-between align-items-center w-100">
+                                <div class="fw-semibold">Categoria: {{ categoria.nome|upper }}</div>
+                                <div>
+                                    {% if categoria.status %}
+                                        <span class="badge bg-success">Ativa</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inativa</span>
+                                    {% endif %}
+                                    <span class="badge bg-secondary">{{ categoria.palavrachave_set.count }} palavras-chave</span>
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
+
+                    <div id="collapse{{ categoria.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ categoria.id }}" data-bs-parent="#accordionCategorias">
+                        <div class="accordion-body">
+
+                            <!-- Ações da categoria -->
+                            <div class="mb-2 d-flex gap-2">
+                                <a href="{% url 'palavras_chave:categoria_update' categoria.id %}" class="btn btn-outline-primary btn-sm" title="Editar Categoria">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'palavras_chave:categoria_delete' categoria.id %}" class="btn btn-outline-danger btn-sm" title="Excluir Categoria">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                <a href="{% url 'palavras_chave:palavra_chave_create' id_cliente=cliente_selecionado.id_cliente id_categoria=categoria.id %}" 
+                                    class="btn btn-outline-success btn-sm" title="Nova Palavra-chave">
+                                    <i class="bi bi-plus-lg"></i>
+                                </a>
+                            </div>
+
+                            {% if categoria.palavrachave_set.exists %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Palavra-chave</th>
+                                                <th>Status</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for palavra in categoria.palavrachave_set.all %}
+                                                <tr>
+                                                    <td>{{ palavra.palavra }}</td>
+                                                    <td>
+                                                        {% if palavra.status %}
+                                                            <span class="badge bg-success">Ativa</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Inativa</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <a href="{% url 'palavras_chave:palavra_chave_update' palavra.id %}" class="btn btn-sm btn-outline-primary" title="Editar Palavra-chave">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <a href="{% url 'palavras_chave:palavra_chave_delete' palavra.id %}" class="btn btn-sm btn-outline-danger" title="Excluir Palavra-chave">
+                                                            <i class="bi bi-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">Nenhuma palavra cadastrada nesta categoria.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">Nenhuma categoria cadastrada para este cliente.</div>
+        <a href="{% url 'palavras_chave:categoria_create' cliente_selecionado.id_cliente %}" class="btn btn-success">
+            <i class="bi bi-folder-plus"></i> Adicionar Categoria
+        </a>
+    {% endif %}
+</div>
+{% endblock %}

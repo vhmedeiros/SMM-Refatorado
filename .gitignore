@@ -22,7 +22,6 @@ venv/
 #BD
 db.sqlite3
 
-#outros
+#outros e todos os arquivos .txt da pasta raiz
 SMM-Refatorado.zip
-planoGPT.txt 
-FASE 2.txt
+/*.txt 

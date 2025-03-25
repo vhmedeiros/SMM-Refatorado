@@ -33,7 +33,7 @@ class NoticiaListView(ListView):
         else:
             queryset = NoticiaImportada.objects.select_related("cd_veiculo").order_by("-dt_noticia")
             # 🔹 Se quiser que a lista inicie vazia, descomente a linha abaixo
-            queryset = NoticiaImportada.objects.none()
+            # queryset = NoticiaImportada.objects.none()
 
         if search:
             queryset = queryset.filter(Q(titulo__icontains=search) | Q(conteudo__icontains=search))

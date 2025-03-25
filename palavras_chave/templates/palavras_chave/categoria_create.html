@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Categoria{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">Nova Categoria para o Cliente: <strong>{{ cliente_selecionado.nome_cliente|upper }}</strong></h3>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <!-- Campo Nome -->
+                <div class="mb-3">
+                    <label for="id_nome" class="form-label">Nome da Categoria</label>
+                    {{ form.nome }}
+                </div>
+
+                <!-- Campo Status -->
+                <div class="mb-3">
+                    <label for="id_status" class="form-label">Status</label>
+                    {{ form.status }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="{% url 'palavras_chave:categoria_list' cliente_selecionado.id_cliente %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Salvar Categoria
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -17,25 +17,6 @@ SECRET_KEY = config('SECRET_KEY')
 # cast=bool converte a string para boolean
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "handlers": {
-#         "file": {
-#             "level": "WARNING",
-#             "class": "logging.FileHandler",
-#             "filename": BASE_DIR / "logs/django.log",
-#         },
-#     },
-#     "loggers": {
-#         "django": {
-#             "handlers": ["file"],
-#             "level": "WARNING",
-#             "propagate": True,
-#         },
-#     },
-# }
-
 # para permitir todos os hosts que estão conectados à minha rede.
 ALLOWED_HOSTS = ["*"]
 # tem que colocar uma regra de entrada no firewall
@@ -53,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     'django_htmx', # HTMX
+    'widget_tweaks', # Widget Tweaks
 
     "autenticacao",
     "clientes",
@@ -62,13 +44,16 @@ INSTALLED_APPS = [
     "empresas",
     "eventos",
     "noticias",
+    "palavras_chave",
     "relatorios",
+    "site_cliente",
     "veiculos",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "app.middleware.cliente_middleware.ClienteSelecionadoMiddleware",
     "django.middleware.common.CommonMiddleware",
     'django_htmx.middleware.HtmxMiddleware', # Middleware do HTMX
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -90,6 +75,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "app.context_processors.cliente_selecionado", # 👈 
             ],
         },
     },

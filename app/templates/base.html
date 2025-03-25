@@ -142,7 +142,12 @@
                     event.preventDefault(); // Impede a navegação
                     let alertaCliente = new bootstrap.Modal(document.getElementById("alertaCliente"));
                     alertaCliente.show(); // Exibe o alerta
-                }
+                } else {
+                    const destino = this.getAttribute("data-url");
+                    if (destino) {
+                        window.location.href = destino;
+                    }
+}
             });
         });
     });
@@ -166,6 +171,7 @@
     </div>
   </div>
 
+  
 </body>
 
 </html>

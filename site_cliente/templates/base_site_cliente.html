@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ config.nome_cliente_sistema }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background-color: {{ config.cor_secundaria }}; color: {{ config.cor_primaria }};">
+
+    {% include "components/_header_cliente.html" %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div id="sidebar-cliente" class="col-md-3 col-lg-2 bg-light">
+                {% include "components/_sidebar_cliente.html" %}
+            </div>
+
+            <!-- Conteúdo principal -->
+            <main class="col-md-9 col-lg-10 py-3">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

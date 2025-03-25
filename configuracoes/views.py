@@ -36,36 +36,6 @@ class ClienteConfigListView(ListView):
 
         return queryset
 
-# class ClienteConfigVisualCreateView(CreateView):
-#     model = ConfiguracaoCliente
-#     form_class = ConfiguracaoClienteForm
-#     template_name = "config_cliente_visual_update.html"
-
-#     def get_form_kwargs(self):
-#         """Passa o id_cliente explicitamente no form."""
-#         kwargs = super().get_form_kwargs()
-#         id_cliente = self.kwargs.get("id_cliente")
-#         cliente = get_object_or_404(ErpCliente, pk=id_cliente)
-#         kwargs["initial"] = {
-#             "id_cliente": cliente, 
-#             "nome_cliente_sistema": cliente.nome_cliente,
-#         }
-#         return kwargs
-
-#     def form_valid(self, form):
-#         """Força a associação correta do id_cliente antes de salvar."""
-#         id_cliente = self.kwargs.get("id_cliente")  
-#         cliente = get_object_or_404(ErpCliente, pk=id_cliente)  
-
-#         # Define manualmente o id_cliente no formulário antes do salvamento
-#         form.instance.id_cliente = cliente  
-
-#         # Salva corretamente
-#         self.object = form.save(commit=False)  
-#         self.object.id_cliente = cliente  # Garante que o ID seja preenchido
-#         self.object.save()
-
-#         return redirect("config_cliente_visual_update", pk=self.object.id_cliente.pk)
 
 class ClienteConfigVisualCreateView(CreateView):
     model = ConfiguracaoCliente
@@ -84,6 +54,12 @@ class ClienteConfigVisualCreateView(CreateView):
 
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cliente_selecionado"] = self.object
+        return context
+
+
     def form_valid(self, form):
         id_cliente = self.kwargs.get("id_cliente")
         cliente = get_object_or_404(ErpCliente, pk=id_cliente)
@@ -96,21 +72,74 @@ class ClienteConfigVisualCreateView(CreateView):
 
         return redirect("config_cliente_visual_update", pk=self.object.id_cliente.pk)
 
+    def get(self, request, *args, **kwargs):
+        id_cliente = self.kwargs.get("id_cliente")
+        if id_cliente:
+            request.session["cliente_selecionado"] = {
+                "id_cliente": int(id_cliente)
+            }
+            request.session.modified = True
+        return super().get(request, *args, **kwargs)
+
 class ClienteConfigDetailView(DetailView):
     model = ErpCliente
     template_name = "config_cliente_detail.html"
     context_object_name = "cliente"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        request.session["cliente_selecionado"] = self.object.id_cliente  # 🔥 adiciona o cliente na sessão
+        request.session.modified = True
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["cliente_selecionado"] = self.object
         context["configuracao"] = ConfiguracaoCliente.objects.filter(id_cliente=self.object).first()
         return context
+
 class ClienteConfigUpdateView(UpdateView):
     model = ErpCliente
     template_name = "config_cliente_update.html"
     form_class = ClienteForm
     success_url = reverse_lazy("config_cliente_list")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cliente_selecionado"] = self.object
+        return context
+
+    
+# class ClienteConfigVisualUpdateView(UpdateView):
+#     model = ConfiguracaoCliente
+#     form_class = ConfiguracaoClienteForm
+#     template_name = "config_cliente_visual_update.html"
+
+#     def get_object(self):
+#         id_cliente = self.kwargs.get("pk")
+#         obj = get_object_or_404(ConfiguracaoCliente, id_cliente=id_cliente)
+
+#         # Ajusta a data de ativação para o horário local
+#         if obj.data_ativacao:
+#             obj.data_ativacao = localtime(obj.data_ativacao)
+
+#         return obj
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+
+#         # 🔥 Aqui é o segredo: passa o cliente para o contexto
+#         context["cliente_selecionado"] = self.object.id_cliente
+
+#         # Opcional: se quiser enviar o contrato e empresa também, já que você usa isso em outros lugares
+#         contrato = ErpContrato.objects.filter(id_cliente=self.object.id_cliente).first()
+#         context["empresa_prestadora"] = contrato.cd_empresa.nome_fantasia if contrato else "-"
+
+#         return context
+
+#     def form_valid(self, form):
+#         self.object = form.save()
+#         return redirect("config_cliente_detail", pk=self.object.id_cliente.pk)
 
 class ClienteConfigVisualUpdateView(UpdateView):
     model = ConfiguracaoCliente
@@ -127,28 +156,35 @@ class ClienteConfigVisualUpdateView(UpdateView):
 
         return obj
 
+    def get(self, request, *args, **kwargs):
+        # 👇 Adiciona cliente na sessão ao acessar a página
+        configuracao = self.get_object()
+        request.session["cliente_selecionado"] = {
+            "id_cliente": configuracao.id_cliente.id_cliente
+        }
+        request.session.modified = True
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Mantém o contexto como já estava
+        context["cliente_selecionado"] = self.object.id_cliente
+
+        contrato = ErpContrato.objects.filter(id_cliente=self.object.id_cliente).first()
+        context["empresa_prestadora"] = contrato.cd_empresa.nome_fantasia if contrato else "-"
+
+        return context
+
     def form_valid(self, form):
         self.object = form.save()
         return redirect("config_cliente_detail", pk=self.object.id_cliente.pk)
 
-# def config_cliente_redirect(request, id_cliente):
-#     """
-#     Redireciona para a página correta:
-#     - Se a configuração já existir, redireciona para o update.
-#     - Se não existir, redireciona para a criação de uma nova.
-#     """
-#     request.session["id_cliente"] = int(id_cliente)
-#     try:
-#         # Verifica se já existe uma configuração para o cliente
-#         config = ConfiguracaoCliente.objects.get(id_cliente=id_cliente)
-#         return redirect("config_cliente_visual_update", pk=config.id_cliente.pk)
-#     except ConfiguracaoCliente.DoesNotExist:
-#         # Se não existir, redireciona para criar uma nova configuração
-#         return redirect("config_cliente_visual_create", id_cliente=id_cliente)
-
-
 def config_cliente_redirect(request, id_cliente):
     request.session["id_cliente"] = int(id_cliente)
+    request.session["cliente_selecionado"] = int(id_cliente)
+    request.session.modified = True
 
     if ConfiguracaoCliente.objects.filter(id_cliente=id_cliente).exists():
         return redirect("config_cliente_visual_update", pk=id_cliente)

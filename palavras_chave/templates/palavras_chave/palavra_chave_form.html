@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {% if form.instance.pk %}Editar Palavra-chave{% else %}Nova Palavra-chave{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="display-6">
+        {% if form.instance.pk %}
+            Editar Palavra-chave
+        {% else %}
+            Nova Palavra-chave
+        {% endif %}
+    </h3>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- Campo palavra -->
+                <div class="mb-3">
+                    {{ form.palavra.label_tag }}
+                    {% if form.palavra.errors %}
+                        {{ form.palavra|add_class:"form-control is-invalid" }}
+                        <div class="invalid-feedback">
+                            {{ form.palavra.errors.0 }}
+                        </div>
+                    {% else %}
+                        {{ form.palavra|add_class:"form-control" }}
+                    {% endif %}
+                </div>
+
+                <!-- Campo status -->
+                <div class="mb-3">
+                    {{ form.status.label_tag }}
+                    {% if form.status.errors %}
+                        {{ form.status|add_class:"form-select is-invalid" }}
+                        <div class="invalid-feedback">
+                            {{ form.status.errors.0 }}
+                        </div>
+                    {% else %}
+                        {{ form.status|add_class:"form-select" }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-between">
+                <a href="{% url 'palavras_chave:categoria_list' id_cliente=cliente_selecionado.id_cliente %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check2-circle"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
