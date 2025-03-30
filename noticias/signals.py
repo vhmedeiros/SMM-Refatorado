@@ -10,7 +10,7 @@ def executar_sp():
     Executa a Stored Procedure VincularNoticiasAClientes.
     """
     with connection.cursor() as cursor:
-        cursor.execute("EXEC VincularNoticiasAClientes;")
+        cursor.execute("EXEC sp_VincularNoticiasAClientes;")
 
 
 @receiver(post_save, sender=NoticiaImportada)

@@ -1,30 +1,42 @@
 <div class="p-3">
-    <h6>Filtrar por:</h6>
+    <h6 class="fw-bold mb-3">Filtrar por:</h6>
 
     <!-- Calendário -->
-    <input type="date" class="form-control mb-2" value="{% now 'd-m-Y' %}">
+    <label class="form-label">Data</label>
+    <input type="date" class="form-control mb-3" name="data" id="filtro-data" value="{{ data|date:'Y-m-d' }}">
 
-    <!-- Assunto -->
-    <select class="form-select mb-2">
-        <option>Todas os assuntos</option>
+    <!-- Assunto (ainda estático, mas estilizado) -->
+    <label class="form-label">Assunto</label>
+    <select class="form-select mb-3" name="assunto" disabled>
+        <option value="">Todas os assuntos</option>
     </select>
 
-    <!-- Estado -->
-    <select class="form-select mb-2">
-        <option>Todos os estados</option>
+    <!-- Estado (ainda estático, mas estilizado) -->
+    <label class="form-label">Estado</label>
+    <select class="form-select mb-3" name="estado" disabled>
+        <option value="">Todos os estados</option>
     </select>
 
-    <!-- Veículo -->
-    <select class="form-select mb-2">
-        <option>Todos os veículos</option>
+    <!-- Veículo (ainda estático, mas estilizado) -->
+    <label class="form-label">Veículo</label>
+    <select class="form-select mb-3" name="veiculo" disabled>
+        <option value="">Todos os veículos</option>
     </select>
 
     <!-- Estatísticas -->
     <hr>
-    <h6>Estatísticas</h6>
+    <h6 class="fw-bold">Estatísticas</h6>
     <ul class="list-unstyled small">
-        <li><a href="#">› Avaliações</a></li>
-        <li><a href="#">› Análise de mídia</a></li>
-        <li><a href="#">› Lista de notícias</a></li>
+        <li><a href="#" class="text-decoration-none">› Avaliações</a></li>
+        <li><a href="#" class="text-decoration-none">› Análise de mídia</a></li>
+        <li><a href="#" class="text-decoration-none">› Lista de notícias</a></li>
     </ul>
+
+    <script>
+      document.getElementById('filtro-data').addEventListener('change', function () {
+        const url = new URL(window.location.href);
+        url.searchParams.set('data', this.value);
+        window.location.href = url.href;
+      });
+    </script>
 </div>

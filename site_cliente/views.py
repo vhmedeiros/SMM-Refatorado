@@ -1,87 +1,9 @@
-# # from django.views.generic import TemplateView
-# # from django.shortcuts import get_object_or_404, render
-# # from django.utils.timezone import timezone, now
-# # from noticias.models import NoticiaImportada
-# # from configuracoes.models import ConfiguracaoCliente
-# # from clientes.models import ErpCliente
-# # from datetime import datetime
-# # from collections import defaultdict
-
-
-# # class ClientePaginaPublicaView(TemplateView):
-# #     template_name = "site_cliente/noticias.html"
-
-# #     def get_context_data(self, **kwargs):
-# #         context = super().get_context_data(**kwargs)
-
-# #         # pega a sigla do cliente que está na URL
-# #         sigla = self.kwargs.get('sigla_cliente')
-
-# #         # busca a configuração do cliente
-# #         configuracao = get_object_or_404(ConfiguracaoCliente, sigla_cliente__iexact=sigla)
-# #         cliente = configuracao.id_cliente
-
-# #         # data que o cliente selecionou o filtro (ou hoje, se não houver filtro)
-# #         data_str = self.request.GET.get('data')
-# #         if data_str:
-# #             try:
-# #                 data = datetime.strptime(data_str, '%Y-%m-%d').date()
-# #             except ValueError:
-# #                 data = now().date()
-# #         else:
-# #             data = now().date()
-
-# #         noticias = (
-# #             NoticiaImportada.objects
-# #             .filter(
-# #                 clientes_relacionados__contains=str(cliente.id_cliente),
-# #                 dt_noticia__year=data.year,
-# #                 dt_noticia__month=data.month,
-# #                 dt_noticia__day=data.day,
-# #                 processado=True,
-# #             )
-# #             .select_related('cd_veiculo__tipo_veiculo', 'cd_veiculo__cd_uf')
-# #             .order_by('cd_veiculo__tipo_veiculo__descricao_tipo_veiculo', 'cd_veiculo__nome_veiculo', '-dt_noticia')
-# #         )
-
-# #         # agrupar noticias: tipo veiculo > veiculo > lista noticias
-# #         agrupadas = defaultdict(lambda: defaultdict(list))
-
-# #         for noticia in noticias:
-# #             tipo = noticia.cd_veiculo.tipo_veiculo.descricao_tipo_veiculo
-# #             veiculo = noticia.cd_veiculo.nome_veiculo
-# #             agrupadas[tipo][veiculo].append(noticia)
-
-# #         # enviar ao template:
-# #         context['configuracao'] = configuracao
-# #         context['agrupadas'] = agrupadas
-# #         context['data'] = data
-# #         context['cliente_selecionado'] = cliente
-
-
-# #         return context 
-
-
-# # def pagina_cliente(request, sigla_cliente):
-# #     configuracao = get_object_or_404(ConfiguracaoCliente, sigla_cliente=sigla_cliente)
-# #     id_cliente = configuracao.id_cliente.id_cliente  # Pegando o ID inteiro
-
-# #     # ⚠️ O campo clientes_relacionados é texto tipo "4627,123", então usamos contains
-# #     noticias = NoticiaImportada.objects.filter(
-# #         clientes_relacionados__icontains=str(id_cliente)
-# #     ).order_by("-dt_noticia")[:100]  # Limite inicial de 100
-
-# #     return render(request, "site_cliente/noticias.html", {
-# #         "configuracao": configuracao,
-# #         "noticias": noticias,
-# #     })
-
-# from django.http import Http404
 # from django.shortcuts import get_object_or_404
 # from django.utils.timezone import localtime, now
 # from django.views.generic import TemplateView
 # from noticias.models import NoticiaImportada
 # from configuracoes.models import ConfiguracaoCliente
+# from vinculos_clientes_noticias.models import VinculoNoticiaClienteCategoria
 
 # class ClientePaginaPublicaView(TemplateView):
 #     template_name = "site_cliente/noticias.html"
@@ -89,62 +11,73 @@
 #     def dispatch(self, request, *args, **kwargs):
 #         sigla = self.kwargs.get("sigla_cliente")
 
-#         # Busca a configuração ativa pela sigla
-#         conf = (
-#             ConfiguracaoCliente.objects
-#             .select_related("id_cliente")
-#             .filter(sigla_cliente__iexact=sigla, status_pagina="A")
-#             .first()
+#         self.config = get_object_or_404(
+#             ConfiguracaoCliente.objects.select_related("id_cliente"),
+#             sigla_cliente=sigla,
+#             status_pagina="A"
 #         )
-
-#         if not conf:
-#             raise Http404("Página do cliente não encontrada ou inativa.")
-
-#         self.cliente = conf.id_cliente
-#         self.config = conf  # se quiser usar o logotipo ou outras configs depois
-
+#         self.cliente = self.config.id_cliente
 #         return super().dispatch(request, *args, **kwargs)
 
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
 #         cliente = self.cliente
-#         data = localtime(now()).date()
+#         config = self.config
+#         request = self.request
+
+#         from datetime import datetime
+#         data_str = request.GET.get("data")
+#         if data_str:
+#             try:
+#                 data = datetime.strptime(data_str, "%Y-%m-%d").date()
+#             except ValueError:
+#                 data = localtime(now()).date()
+#         else:
+#             data = localtime(now()).date()
+
 #         context["data"] = data
 
-#         # Busca todas as notícias do dia processadas
-#         todas = (
+#         # IDs de notícias vinculadas a este cliente para a data
+#         ids_vinculadas = VinculoNoticiaClienteCategoria.objects.filter(
+#             id_cliente=cliente.id_cliente,
+#             cd_noticia__dt_noticia__date=data
+#         ).values_list("cd_noticia", flat=True)
+
+#         noticias = (
 #             NoticiaImportada.objects
-#             .filter(
-#                 dt_noticia__date=data,
-#                 processado=True,
-#             )
-#             .select_related('cd_veiculo__tipo_veiculo', 'cd_veiculo__cd_uf')
-#             .order_by('cd_veiculo__tipo_veiculo__descricao_tipo_veiculo', 'cd_veiculo__nome_veiculo', '-dt_noticia')
+#             .filter(cd_noticia__in=ids_vinculadas)
+#             .select_related("cd_veiculo__tipo_veiculo", "cd_veiculo__cd_uf")
+#             .order_by("cd_veiculo__tipo_veiculo__descricao_tipo_veiculo", "cd_veiculo__nome_veiculo", "-dt_noticia")
 #         )
 
-#         # Filtra apenas as vinculadas ao cliente
-#         noticias = [
-#             n for n in todas
-#             if n.clientes_relacionados and f",{cliente.id_cliente}," in f",{n.clientes_relacionados},"
-#         ]
-
-#         # Agrupa por tipo e veículo
 #         agrupadas = {}
 #         for noticia in noticias:
 #             tipo = noticia.cd_veiculo.tipo_veiculo.descricao_tipo_veiculo
 #             veiculo = noticia.cd_veiculo.nome_veiculo
+
+#             # 🔹 Categorias vinculadas a essa notícia e cliente
+#             categorias = VinculoNoticiaClienteCategoria.objects.filter(
+#                 cd_noticia=noticia,
+#                 id_cliente=cliente
+#             ).select_related('id_categoria')
+
+#             noticia.categorias_cliente = [v.id_categoria.nome for v in categorias]
+
 #             agrupadas.setdefault(tipo, {}).setdefault(veiculo, []).append(noticia)
 
-#         context["agrupadas"] = agrupadas
-#         context["cliente"] = cliente
+#         context.update({
+#             "agrupadas": agrupadas,
+#             "cliente": cliente,
+#             "config": config,
+#         })
 #         return context
-
 
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import localtime, now
 from django.views.generic import TemplateView
 from noticias.models import NoticiaImportada
 from configuracoes.models import ConfiguracaoCliente
+from vinculos_clientes_noticias.models import VinculoNoticiaClienteCategoria
 
 class ClientePaginaPublicaView(TemplateView):
     template_name = "site_cliente/noticias.html"
@@ -152,14 +85,11 @@ class ClientePaginaPublicaView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         sigla = self.kwargs.get("sigla_cliente")
 
-        # Pegamos a configuração com a sigla da URL
         self.config = get_object_or_404(
             ConfiguracaoCliente.objects.select_related("id_cliente"),
             sigla_cliente=sigla,
             status_pagina="A"
         )
-
-        # Guardamos o cliente relacionado
         self.cliente = self.config.id_cliente
         return super().dispatch(request, *args, **kwargs)
 
@@ -167,36 +97,58 @@ class ClientePaginaPublicaView(TemplateView):
         context = super().get_context_data(**kwargs)
         cliente = self.cliente
         config = self.config
-        data = localtime(now()).date()
+        request = self.request
 
-        todas = (
-            NoticiaImportada.objects
-            .filter(
-                dt_noticia__year=data.year,
-                dt_noticia__month=data.month,
-                dt_noticia__day=data.day,
-                processado=True,
-            )
-            .select_related('cd_veiculo__tipo_veiculo', 'cd_veiculo__cd_uf')
-            .order_by('cd_veiculo__tipo_veiculo__descricao_tipo_veiculo', 'cd_veiculo__nome_veiculo', '-dt_noticia')
+        from datetime import datetime
+        data_str = request.GET.get("data")
+        tipo_veiculo = request.GET.get("tipo")
+
+        if data_str:
+            try:
+                data = datetime.strptime(data_str, "%Y-%m-%d").date()
+            except ValueError:
+                data = localtime(now()).date()
+        else:
+            data = localtime(now()).date()
+
+        context["data"] = data
+        context["tipo_veiculo_selecionado"] = tipo_veiculo
+
+        # Vinculações filtradas
+        vinculacoes = VinculoNoticiaClienteCategoria.objects.filter(
+            id_cliente=cliente.id_cliente,
+            cd_noticia__dt_noticia__date=data
+        ).select_related(
+            "cd_noticia", "cd_noticia__cd_veiculo",
+            "cd_noticia__cd_veiculo__tipo_veiculo",
+            "cd_noticia__cd_veiculo__cd_uf",
+            "id_categoria"
         )
 
-        noticias = [
-            n for n in todas
-            if n.clientes_relacionados and f",{cliente.id_cliente}," in f",{n.clientes_relacionados},"
-        ]
+        if tipo_veiculo:
+            vinculacoes = vinculacoes.filter(cd_noticia__cd_veiculo__tipo_veiculo__descricao_tipo_veiculo=tipo_veiculo)
 
         agrupadas = {}
-        for noticia in noticias:
+        noticias_vistas = {}
+
+        for v in vinculacoes:
+            noticia = v.cd_noticia
+            noticia_id = noticia.cd_noticia
+
             tipo = noticia.cd_veiculo.tipo_veiculo.descricao_tipo_veiculo
             veiculo = noticia.cd_veiculo.nome_veiculo
-            agrupadas.setdefault(tipo, {}).setdefault(veiculo, []).append(noticia)
 
-        # Adiciona ao contexto
+            if noticia_id not in noticias_vistas:
+                noticia.categorias_cliente = [v.id_categoria.nome]
+                noticias_vistas[noticia_id] = noticia
+                agrupadas.setdefault(tipo, {}).setdefault(veiculo, []).append(noticia)
+            else:
+                if v.id_categoria.nome not in noticias_vistas[noticia_id].categorias_cliente:
+                    noticias_vistas[noticia_id].categorias_cliente.append(v.id_categoria.nome)
+
         context.update({
             "agrupadas": agrupadas,
-            "data": data,
             "cliente": cliente,
-            "config": config,  # <- aqui está o que faltava
+            "config": config,
         })
         return context

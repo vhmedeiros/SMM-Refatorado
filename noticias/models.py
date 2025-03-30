@@ -28,9 +28,6 @@ class NoticiaImportada(models.Model):
     no_colunista = models.CharField(max_length=1000, blank=True, null=True)
     ds_url_media = models.CharField(max_length=2000, blank=True, null=True)
     cd_pagina = models.CharField(max_length=6, blank=True, null=True)
-    clientes_relacionados = models.TextField(blank=True, null=True)
-    categorias_relacionadas = models.TextField(blank=True, null=True)
-    processado = models.BooleanField(blank=True, null=True, default=False)
     imagem = models.ImageField(upload_to="noticias/", blank=True, null=True, verbose_name="Imagem")
 
     class Meta:

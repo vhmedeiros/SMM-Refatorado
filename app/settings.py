@@ -198,6 +198,7 @@ INSTALLED_APPS = [
     "relatorios",
     "site_cliente",
     "veiculos",
+    "vinculos_clientes_noticias",  # Novo app para vincular notícias a clientes e categorias
 ]
 
 MIDDLEWARE = [

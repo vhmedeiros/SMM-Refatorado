@@ -1,8 +1,12 @@
 <div class="d-flex flex-wrap gap-2 my-3">
-    <button class="btn btn-outline-primary">Impresso</button>
-    <button class="btn btn-outline-primary">Web</button>
-    <button class="btn btn-outline-primary">TVs</button>
-    <button class="btn btn-outline-primary">Rádios</button>
-    <button class="btn btn-outline-primary">Revistas</button>
-    <button class="btn btn-outline-secondary">Feed</button>
+    <a href="?" class="btn btn-outline-secondary">Feed</a>
+    <a href="?tipo=Impresso" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Impresso' %}active{% endif %}">Impresso</a>
+    <a href="?tipo=Site" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Site' %}active{% endif %}">Web</a>
+    <a href="?tipo=Televisão" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Televisão' %}active{% endif %}">TVs</a>
+    <a href="?tipo=Rádio" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Rádio' %}active{% endif %}">Rádios</a>
+    <a href="?tipo=Revista" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Revista' %}active{% endif %}">Revistas</a>
+    <a href="?tipo=Blog" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Blog' %}active{% endif %}">Blogs</a>
+    <a href="?tipo=Podcast" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Podcast' %}active{% endif %}">Podcasts</a>
+    <a href="?tipo=Videocast" class="btn btn-outline-primary {% if tipo_veiculo_selecionado == 'Videocast' %}active{% endif %}">Videocasts</a>
+    <a href="?" class="btn btn-outline-secondary {% if not tipo_veiculo_selecionado %}active{% endif %}">Todos</a>
 </div>
