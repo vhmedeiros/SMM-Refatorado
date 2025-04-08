@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">➕ Novo Destinatário Base</h4>
+    <a href="{% url 'emails:destinatario_base_list' id_cliente=id_cliente %}" class="btn btn-outline-secondary btn-sm">Voltar</a>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <input type="hidden" name="id_cliente" value="{{ id_cliente }}">
+
+    <div class="mb-3">
+      <label for="id_nome" class="form-label">Nome:</label>
+      {{ form.nome|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_email" class="form-label">E-mail:</label>
+      {{ form.email|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_grupo" class="form-label">Grupo:</label>
+      {{ form.grupo|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_tipo" class="form-label">Tipo:</label>
+      {{ form.tipo|add_class:"form-select" }}
+    </div>
+
+    <div class="form-check mb-3">
+      {{ form.ativo|add_class:"form-check-input" }}
+      <label class="form-check-label" for="id_ativo">Ativo</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+  </form>
+</div>
+{% endblock %}

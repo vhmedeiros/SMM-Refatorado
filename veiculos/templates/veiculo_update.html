@@ -1,97 +1,32 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Editar Veículo{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h3 class="display-6">{% if form.instance.pk %}Editar{% else %}Cadastrar{% endif %} Veículo</h3>
+  <h4 class="mb-3">📝 Editar Veículo #{{ object.cd_veiculo }}</h4>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <!-- Formulário -->
-            <form method="post" class="needs-validation" novalidate>
-                {% csrf_token %}
+  <form method="post" enctype="multipart/form-data" class="bg-body border rounded shadow-sm p-4">
+    {% csrf_token %}
+    <div class="row g-3">
 
-                <div class="row">
-                    {% for field in form %}
-                        {% if field.name not in 'in_domingo in_segunda in_terca in_quarta in_quinta in_sexta in_sabado' %}
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                                {% endif %}
-                                {% for error in field.errors %}
-                                    <div class="text-danger small">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <!-- Dias da Semana -->
-                <div class="row mb-3">
-                    <label class="form-label">Dia de Publicação</label>
-                    <div class="col-12">
-                        <div class="form-check form-check-inline">
-                            {{ form.in_domingo }} <label class="form-check-label" for="{{ form.in_domingo.id_for_label }}">Dom</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            {{ form.in_segunda }} <label class="form-check-label" for="{{ form.in_segunda.id_for_label }}">Seg</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            {{ form.in_terca }} <label class="form-check-label" for="{{ form.in_terca.id_for_label }}">Ter</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            {{ form.in_quarta }} <label class="form-check-label" for="{{ form.in_quarta.id_for_label }}">Qua</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            {{ form.in_quinta }} <label class="form-check-label" for="{{ form.in_quinta.id_for_label }}">Qui</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            {{ form.in_sexta }} <label class="form-check-label" for="{{ form.in_sexta.id_for_label }}">Sex</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            {{ form.in_sabado }} <label class="form-check-label" for="{{ form.in_sabado.id_for_label }}">Sáb</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Botões -->
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-outline-primary me-2">
-                        <i class="bi bi-save"></i> Salvar Veículo
-                    </button>
-                    <a href="{% url 'veiculo_list' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Cancelar
-                    </a>
-                </div>
-            </form>
+      {% for field in form.visible_fields %}
+        <div class="col-md-6">
+          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+          {{ field|add_class:"form-control" }}
+          {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
         </div>
+      {% endfor %}
+
     </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{% url 'veiculo_list' %}" class="btn btn-outline-secondary">🔙 Voltar</a>
+      <button type="submit" class="btn btn-warning">💾 Atualizar</button>
+    </div>
+  </form>
 </div>
-
-<!-- Script para carregar municípios com base na UF selecionada -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const ufSelect = document.getElementById("id_cd_uf");
-        const municipioSelect = document.getElementById("id_id_municipio");
-    
-        ufSelect.addEventListener("change", function () {
-            const ufSelecionada = ufSelect.value;
-            fetch(`/veiculos/get_municipios/?uf=${ufSelecionada}`)  // Chama a view para buscar os municípios
-                .then(response => response.json())
-                .then(data => {
-                    municipioSelect.innerHTML = "";  // Limpa as opções atuais
-                    data.forEach(municipio => {
-                        const option = document.createElement("option");
-                        option.value = municipio.id;
-                        option.textContent = municipio.nome;
-                        municipioSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error("Erro ao buscar municípios:", error));
-        });
-    });
-    </script>
-
-
 {% endblock %}

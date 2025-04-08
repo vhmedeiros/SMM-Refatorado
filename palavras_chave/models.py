@@ -3,6 +3,7 @@ from clientes.models import ErpCliente
 
 
 class Categoriapalavrachave(models.Model):
+    # categoria = models.AutoField(primary_key=True, db_column="id")
     id_cliente = models.ForeignKey(
         ErpCliente, models.DO_NOTHING, db_column="id_cliente", verbose_name="Cliente")
     nome = models.CharField(
@@ -47,44 +48,3 @@ class Palavrachave(models.Model):
         return self.palavra
 
 
-
-
-
-# from django.db import models
-# from noticias.models import NoticiaImportada
-# from clientes.models import ErpCliente
-# from palavras_chave.models import Categoriapalavrachave
-
-# class VinculoNoticiaClienteCategoria(models.Model):
-#     id_noticia = models.ForeignKey(
-#         NoticiaImportada,
-#         on_delete=models.CASCADE,
-#         db_column='id_noticia',
-#         verbose_name='Notícia'
-#     )
-#     id_cliente = models.ForeignKey(
-#         ErpCliente,
-#         on_delete=models.CASCADE,
-#         db_column='id_cliente',
-#         verbose_name='Cliente'
-#     )
-#     id_categoria = models.ForeignKey(
-#         Categoriapalavrachave,
-#         on_delete=models.CASCADE,
-#         db_column='id_categoria',
-#         verbose_name='Categoria'
-#     )
-#     data_vinculo = models.DateTimeField(
-#         auto_now_add=True,
-#         verbose_name='Data de Vínculo'
-#     )
-
-#     class Meta:
-#         managed = False  # já existe no banco
-#         db_table = 'VinculoNoticiaClienteCategoria'
-#         unique_together = (('id_noticia', 'id_cliente', 'id_categoria'),)
-#         verbose_name = 'Vínculo Notícia-Cliente-Categoria'
-#         verbose_name_plural = 'Vínculos de Notícias com Clientes e Categorias'
-
-#     def __str__(self):
-#         return f"Notícia {self.id_noticia_id} → Cliente {self.id_cliente_id} / Categoria {self.id_categoria_id}"

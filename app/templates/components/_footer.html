@@ -1,5 +1,21 @@
-<footer class="footer mt-auto py-3 bg-dark text-light">
-  <div class="container text-center">
-    <span>&copy; 2025 Sistema de Monitoramento de Mídia (SMM). Todos os direitos reservados.</span>
+<footer class="footer mt-auto py-4 border-top shadow-sm bg-body text-body text-center small">
+  <div class="container d-flex flex-column align-items-center justify-content-center gap-1">
+    <div>
+      <i class="bi bi-c-circle me-1"></i>
+      <span id="ano-atual"></span> Sistema de Monitoramento de Mídia (SMM)
+    </div>
+    <div class="text-body-secondary">
+      Todos os direitos reservados.
+    </div>
   </div>
+
+  <!-- Script para inserir o ano atual -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const anoSpan = document.getElementById("ano-atual");
+      if (anoSpan) {
+        anoSpan.textContent = new Date().getFullYear();
+      }
+    });
+  </script>
 </footer>

@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.utils import timezone
 from django.utils.timezone import make_aware, get_current_timezone, now
 from django.http import JsonResponse, HttpResponse
@@ -131,42 +132,83 @@ def buscar_veiculos(request):
 
     return HttpResponse(html)
 
+# def buscar_veiculos_popup(request):
+#     # 🚀 Obtém os veículos ativos do cache, se disponível
+#     veiculos = cache.get("veiculos_ativos")
+
+#     if not veiculos:
+#         veiculos = list(Veiculosistemas.objects.select_related("tipo_veiculo", "cd_uf")
+#                         .filter(situacao_veiculo="A")[:100])  # 🔥 Só veículos ativos
+#         cache.set("veiculos_ativos", veiculos, 300)  # 🔥 Cache por 5 minutos
+
+#     # 🚀 Obtém os tipos de veículo e estados do cache, se disponível
+#     tipos_veiculo = cache.get("tipos_veiculo")
+#     if not tipos_veiculo:
+#         tipos_veiculo = list(TipoVeiculo.objects.all())  # 🔥 Carregar apenas uma vez
+#         cache.set("tipos_veiculo", tipos_veiculo, 600)  # 🔥 Cache por 10 minutos
+
+#     estados = cache.get("estados")
+#     if not estados:
+#         estados = list(Uf.objects.all())  # 🔥 Carregar apenas uma vez
+#         cache.set("estados", estados, 600)  # 🔥 Cache por 10 minutos
+
+#     # 🔥 Obtém os filtros da requisição
+#     nome = request.GET.get("q", "")
+#     tipo = request.GET.get("tipo_veiculo", "")
+#     estado = request.GET.get("estado", "")
+
+#     # 🔥 Aplicar filtros se necessário
+#     veiculos_filtrados = veiculos
+#     if nome:
+#         veiculos_filtrados = [v for v in veiculos if nome.lower() in v.nome_veiculo.lower()]
+#     if tipo:
+#         veiculos_filtrados = [v for v in veiculos_filtrados if str(v.tipo_veiculo.tipo_veiculo) == tipo]
+#     if estado:
+#         veiculos_filtrados = [v for v in veiculos_filtrados if str(v.cd_uf.cd_uf) == estado]
+
+#     return render(request, "veiculos_popup.html", {
+#         "veiculos": veiculos_filtrados,
+#         "tipos_veiculo": tipos_veiculo,
+#         "estados": estados
+#     })
+
+
 def buscar_veiculos_popup(request):
-    # 🚀 Obtém os veículos ativos do cache, se disponível
-    veiculos = cache.get("veiculos_ativos")
-
-    if not veiculos:
-        veiculos = list(Veiculosistemas.objects.select_related("tipo_veiculo", "cd_uf")
-                        .filter(situacao_veiculo="A")[:100])  # 🔥 Só veículos ativos
-        cache.set("veiculos_ativos", veiculos, 300)  # 🔥 Cache por 5 minutos
-
-    # 🚀 Obtém os tipos de veículo e estados do cache, se disponível
-    tipos_veiculo = cache.get("tipos_veiculo")
-    if not tipos_veiculo:
-        tipos_veiculo = list(TipoVeiculo.objects.all())  # 🔥 Carregar apenas uma vez
-        cache.set("tipos_veiculo", tipos_veiculo, 600)  # 🔥 Cache por 10 minutos
-
-    estados = cache.get("estados")
-    if not estados:
-        estados = list(Uf.objects.all())  # 🔥 Carregar apenas uma vez
-        cache.set("estados", estados, 600)  # 🔥 Cache por 10 minutos
-
-    # 🔥 Obtém os filtros da requisição
+    # 🔍 Filtros recebidos
     nome = request.GET.get("q", "")
     tipo = request.GET.get("tipo_veiculo", "")
     estado = request.GET.get("estado", "")
 
-    # 🔥 Aplicar filtros se necessário
-    veiculos_filtrados = veiculos
+    # 🔍 Query base otimizada: filtra no banco (não carrega tudo em memória!)
+    veiculos = Veiculosistemas.objects.select_related("tipo_veiculo", "cd_uf").filter(situacao_veiculo="A")
+
     if nome:
-        veiculos_filtrados = [v for v in veiculos if nome.lower() in v.nome_veiculo.lower()]
+        veiculos = veiculos.filter(nome_veiculo__icontains=nome)
     if tipo:
-        veiculos_filtrados = [v for v in veiculos_filtrados if str(v.tipo_veiculo.tipo_veiculo) == tipo]
+        veiculos = veiculos.filter(tipo_veiculo__tipo_veiculo=tipo)
     if estado:
-        veiculos_filtrados = [v for v in veiculos_filtrados if str(v.cd_uf.cd_uf) == estado]
+        veiculos = veiculos.filter(cd_uf__cd_uf=estado)
+
+    # 🔁 Paginação para não sobrecarregar o HTML/servidor
+    paginator = Paginator(veiculos, 30)  # 30 veículos por página
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # 🔥 Cache leve para tipos e estados
+    tipos_veiculo = cache.get("tipos_veiculo")
+    if not tipos_veiculo:
+        tipos_veiculo = list(TipoVeiculo.objects.all())
+        cache.set("tipos_veiculo", tipos_veiculo, 600)
+
+    estados = cache.get("estados")
+    if not estados:
+        estados = list(Uf.objects.all())
+        cache.set("estados", estados, 600)
 
     return render(request, "veiculos_popup.html", {
-        "veiculos": veiculos_filtrados,
+        "page_obj": page_obj,
+        "veiculos": page_obj.object_list,
         "tipos_veiculo": tipos_veiculo,
-        "estados": estados
+        "estados": estados,
+        "paginator": paginator,
     })

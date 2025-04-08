@@ -1,0 +1,21 @@
+<div class="mb-3">
+    <label for="grupo-select" class="form-label">Importar Destinatários por Grupo</label>
+    <div class="input-group">
+      <select id="grupo-select" name="grupo" class="form-select">
+        <option value="">Selecione um grupo...</option>
+        {% for grupo in grupos %}
+          <option value="{{ grupo }}">{{ grupo }}</option>
+        {% endfor %}
+      </select>
+      <button
+        class="btn btn-primary"
+        type="button"
+        hx-get="{% url 'emails:htmx_importar_grupo_destinatarios' id_cliente=id_cliente id_disparo=id_disparo %}"
+        hx-include="#grupo-select"
+        hx-target="#destinatario-wrapper"
+        hx-swap="innerHTML">
+        ➕ Importar
+      </button>
+    </div>
+  </div>
+  

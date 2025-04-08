@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Novo Disparo de E-mail{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">📬 Novo Disparo de E-mail</h4>
+    <a href="{% url 'emails:email_list' id_cliente=id_cliente %}" class="btn btn-outline-secondary btn-sm">← Voltar para Lista</a>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <!-- 📄 Informações do Disparo -->
+    <fieldset class="border rounded-3 p-3 mb-4">
+      <legend class="w-auto px-2">📄 Informações do Disparo</legend>
+
+      <div class="mb-3">
+        {{ form.id_categoria.label_tag }}{{ form.id_categoria|add_class:"form-select" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.assunto.label_tag }}{{ form.assunto|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.status.label_tag }}{{ form.status|add_class:"form-select" }}
+      </div>
+    </fieldset>
+
+    <!-- 🎨 Layout HTML -->
+    <fieldset class="border rounded-3 p-3 mb-4">
+      <legend class="w-auto px-2">🎨 Layout do E-mail</legend>
+
+      <div class="mb-3">
+        {{ form.estilo_geral.label_tag }}{{ form.estilo_geral|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.cabecalho_html.label_tag }}{{ form.cabecalho_html|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.titulo_html.label_tag }}{{ form.titulo_html|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.rodape_html.label_tag }}{{ form.rodape_html|add_class:"form-control" }}
+      </div>
+    </fieldset>
+
+    <!-- ⏰ Horários -->
+    <fieldset class="border rounded-3 p-3 mb-4">
+      <legend class="w-auto px-2">⏰ Horários de Disparo por Dia</legend>
+      <div class="alert alert-info">
+        ⚠️ Para adicionar horários, salve este disparo primeiro. A edição com múltiplos horários será habilitada na tela de edição.
+      </div>
+    </fieldset>
+
+    <!-- 👥 Grupo de Destinatários -->
+    <fieldset class="border rounded-3 p-3 mb-4">
+      <legend class="w-auto px-2">👥 Grupo de Destinatários</legend>
+      <div class="alert alert-info">
+        Os destinatários poderão ser adicionados após salvar este disparo.
+      </div>
+    </fieldset>
+
+    <!-- ✅ Ações -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-success">💾 Salvar</button>
+      <a href="{% url 'emails:email_list' id_cliente=id_cliente %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

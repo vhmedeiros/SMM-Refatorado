@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">✏️ Editar Destinatário Base</h4>
+    <a href="{% url 'emails:destinatario_base_list' id_cliente=destinatario.id_cliente_id %}" class="btn btn-sm btn-outline-secondary">Voltar</a>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      <label for="id_nome" class="form-label">Nome:</label>
+      {{ form.nome|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_email" class="form-label">E-mail:</label>
+      {{ form.email|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_grupo" class="form-label">Grupo:</label>
+      {{ form.grupo|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_tipo" class="form-label">Tipo:</label>
+      {{ form.tipo|add_class:"form-select" }}
+    </div>
+
+    <div class="mb-3 form-check">
+      {{ form.ativo|add_class:"form-check-input" }}
+      <label for="id_ativo" class="form-check-label">Ativo</label>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-success">Salvar</button>
+      <a href="{% url 'emails:destinatario_base_list' id_cliente=destinatario.id_cliente_id %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

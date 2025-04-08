@@ -1,130 +1,149 @@
 {% extends 'base.html' %}
+{% block title %}Detalhes do Veículo{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h3 class="display-6 text-light">Detalhes do Veículo</h3>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">📰 Detalhes do Veículo</h4>
+    <a href="{% url 'veiculo_update' object.cd_veiculo %}" class="btn btn-sm btn-outline-warning">
+      ✏️ Editar
+    </a>
+  </div>
 
-    <div class="card shadow-sm bg-dark text-light">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Nome do Veículo</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.nome_veiculo|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Prioridade</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.prioridade_veiculo|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Veículo Nacional</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.veiculo_nacional|yesno:"Sim,Não" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Situação</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {% if object.situacao_veiculo == 'A' %} Ativo {% else %} Inativo {% endif %}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Ordem de Importância</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.ordem_veiculo|default:"Não informado" }}
-                    </div>
-                </div>
+  <div class="card border-secondary shadow-sm">
+    <div class="card-body p-0">
 
-                <!-- Localização -->
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">UF</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.cd_uf|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Município</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.id_municipio|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">País</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.cd_pais|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Língua</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.cd_lingua|default:"Não informado" }}
-                    </div>
-                </div>
-
-                <!-- Informações adicionais -->
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Tipo de Veículo</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.tipo_veiculo|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Valor Publicitário (R$)</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.valor_publicitario_cm|floatformat:2|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Altura (cm)</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.cm_altura|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Largura (cm)</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {{ object.cm_largura|default:"Não informado" }}
-                    </div>
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label class="form-label fw-bold">Endereço do Site</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        {% if object.endereco_site_veiculo %}
-                        <a href="{{ object.endereco_site_veiculo }}" target="_blank" class="text-info">{{ object.endereco_site_veiculo }}</a>
-                        {% else %}
-                        Não informado
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Dias de Publicação -->
-                <div class="col-md-12 mb-3">
-                    <label class="form-label fw-bold">Dias de Publicação</label>
-                    <div class="form-control bg-dark border border-secondary text-light">
-                        <strong>Domingo:</strong> {{ object.in_domingo|yesno:"Sim,Não" }} <br>
-                        <strong>Segunda:</strong> {{ object.in_segunda|yesno:"Sim,Não" }} <br>
-                        <strong>Terça:</strong> {{ object.in_terca|yesno:"Sim,Não" }} <br>
-                        <strong>Quarta:</strong> {{ object.in_quarta|yesno:"Sim,Não" }} <br>
-                        <strong>Quinta:</strong> {{ object.in_quinta|yesno:"Sim,Não" }} <br>
-                        <strong>Sexta:</strong> {{ object.in_sexta|yesno:"Sim,Não" }} <br>
-                        <strong>Sábado:</strong> {{ object.in_sabado|yesno:"Sim,Não" }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botões -->
-            <div class="d-flex justify-content-between mt-3">
-                <a href="{% url 'veiculo_update' object.pk %}" class="btn btn-outline-info btn-sm">
-                    <i class="bi bi-pencil"></i> Editar Veículo
-                </a>
-                <a href="{% url 'veiculo_list' %}" class="btn btn-outline-light btn-sm">
-                    <i class="bi bi-arrow-left"></i> Voltar para Lista
-                </a>
-            </div>
+      <!-- Identificação -->
+      <div class="border-bottom p-3 row">
+        <div class="col-md-6">
+          <h6 class="text-muted mb-1">Nome do Veículo</h6>
+          <p class="fw-semibold mb-0">{{ object.nome_veiculo }}</p>
         </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">UF</h6>
+          <p class="mb-0">{{ object.cd_uf|default:"-" }}</p>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Cidade</h6>
+          <p class="mb-0">{{ object.id_municipio|default:"-" }}</p>
+        </div>
+      </div>
+
+      <!-- Classificação -->
+      <div class="border-bottom p-3 row">
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Tipo</h6>
+          <p class="mb-0">{{ object.tipo_veiculo.descricao_tipo_veiculo|default:"-" }}</p>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Prioridade</h6>
+          <p class="mb-0">{{ object.prioridade_veiculo|default:"-" }}</p>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Ordem</h6>
+          <p class="mb-0">{{ object.ordem_veiculo|default:"-" }}</p>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Veículo Nacional</h6>
+          <p class="mb-0">{{ object.veiculo_nacional|yesno:"Sim,Não" }}</p>
+        </div>
+      </div>
+
+      <!-- Status & Acesso -->
+      <div class="border-bottom p-3 row">
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Status</h6>
+          {% if object.situacao_veiculo == "A" %}
+            <span class="badge bg-success">Ativo</span>
+          {% else %}
+            <span class="badge bg-secondary">Inativo</span>
+          {% endif %}
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Última Notícia</h6>
+          <p class="mb-0">{{ object.data_ultima_noticia|date:"d/m/Y H:i" }}</p>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Usuário Web</h6>
+          <p class="mb-0">{{ object.cd_usuario_web|default:"-" }}</p>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Senha Web</h6>
+          <p class="mb-0">{{ object.cd_senha_web|default:"-" }}</p>
+        </div>
+      </div>
+
+      <!-- Endereços -->
+      <div class="border-bottom p-3 row">
+        <div class="col-md-6">
+          <h6 class="text-muted mb-1">Site / Endereço</h6>
+          {% if object.endereco_site_veiculo %}
+            <a href="{{ object.endereco_site_veiculo }}" target="_blank" class="text-decoration-none text-info">
+              🌐 {{ object.endereco_site_veiculo }}
+            </a>
+          {% else %}
+            <p class="text-muted mb-0">Não informado</p>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <h6 class="text-muted mb-1">Endereço Físico</h6>
+          <p class="mb-0">{{ object.nome_endereco|default:"-" }}</p>
+        </div>
+      </div>
+
+      <!-- Flip & Stream -->
+      <div class="border-bottom p-3 row">
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Usuário Flip</h6>
+          <p class="mb-0">{{ object.cd_usuario_flip|default:"-" }}</p>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted mb-1">Senha Flip</h6>
+          <p class="mb-0">{{ object.cd_senha_flip|default:"-" }}</p>
+        </div>
+        <div class="col-md-6">
+          <h6 class="text-muted mb-1">Endereço Flip</h6>
+          <p class="mb-0">{{ object.endereco_flip|default:"-" }}</p>
+        </div>
+      </div>
+
+      <!-- Publicidade e Comando -->
+      <div class="border-bottom p-3 row">
+        <div class="col-md-4">
+          <h6 class="text-muted mb-1">Valor Publicitário (cm)</h6>
+          <p class="mb-0">R$ {{ object.valor_publicitario_cm|default:"-" }}</p>
+        </div>
+        <div class="col-md-4">
+          <h6 class="text-muted mb-1">Altura (cm)</h6>
+          <p class="mb-0">{{ object.cm_altura|default:"-" }}</p>
+        </div>
+        <div class="col-md-4">
+          <h6 class="text-muted mb-1">Largura (cm)</h6>
+          <p class="mb-0">{{ object.cm_largura|default:"-" }}</p>
+        </div>
+      </div>
+
+      <!-- Extras -->
+      <div class="p-3 row">
+        <div class="col-md-4">
+          <h6 class="text-muted mb-1">Telefone</h6>
+          <p class="mb-0">{{ object.numero_telefone|default:"-" }}</p>
+        </div>
+        <div class="col-md-4">
+          <h6 class="text-muted mb-1">Quantidade de Público</h6>
+          <p class="mb-0">{{ object.quantidade_publico|default:"-" }}</p>
+        </div>
+        <div class="col-md-4">
+          <h6 class="text-muted mb-1">Situação do Stream</h6>
+          <p class="mb-0">{{ object.situacao_url_stream|default:"-" }}</p>
+        </div>
+      </div>
+
     </div>
+  </div>
+
+  <div class="text-end mt-3">
+    <a href="{% url 'veiculo_list' %}" class="btn btn-outline-secondary">🔙 Voltar</a>
+  </div>
 </div>
 {% endblock %}

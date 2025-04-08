@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h4 class="mb-3 text-danger">🗑️ Confirmar Exclusão</h4>
+
+  <div class="alert alert-warning">
+    Tem certeza de que deseja excluir o destinatário <strong>{{ object.nome|default:object.email }}</strong>?
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sim, excluir</button>
+    <a href="{% url 'emails:destinatario_base_list' id_cliente=object.id_cliente_id %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

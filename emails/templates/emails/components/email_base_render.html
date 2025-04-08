@@ -1,0 +1,54 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    {{ estilo_geral|default:"" }}
+  </style>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+
+  <!-- Cabeçalho -->
+  {% if cabecalho_html %}
+    <div style="margin-bottom: 20px;">
+      {{ cabecalho_html }}
+    </div>
+  {% endif %}
+
+  <!-- Título -->
+  {% if titulo_html %}
+    <h2 style="margin-bottom: 10px;">{{ titulo_html }}</h2>
+  {% endif %}
+
+  <!-- Lista de Notícias -->
+  {% if noticias %}
+    {% for noticia in noticias %}
+      <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 15px; background-color: #fff;">
+        <h3 style="margin-top: 0;">{{ noticia.titulo }}</h3>
+        {% if noticia.subtitulo %}
+          <h5 style="margin-bottom: 8px; color: #666;">{{ noticia.subtitulo }}</h5>
+        {% endif %}
+        <p>{{ noticia.conteudo }}</p>
+        {% if noticia.ds_url %}
+          <p><a href="{{ noticia.ds_url }}" target="_blank">🔗 Ver notícia completa</a></p>
+        {% endif %}
+        <small><strong>Veículo:</strong> {{ noticia.cd_veiculo.nome_veiculo }}</small>
+        <br>
+        <small><strong>Data:</strong> {{ noticia.dt_noticia|date:"d/m/Y H:i" }}</small>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p><em>Nenhuma notícia encontrada no período selecionado.</em></p>
+  {% endif %}
+
+  <!-- Rodapé -->
+  {% if rodape_html %}
+    <div style="margin-top: 30px; color: #999; font-size: 12px;">
+      {{ rodape_html }}
+    </div>
+  {% endif %}
+
+</body>
+</html>
+{% endautoescape %}

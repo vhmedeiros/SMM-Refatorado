@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">📇 Lista de Destinatários Base</h4>
+    <div class="d-flex gap-2">
+      <a href="{% url 'emails:destinatario_base_create' id_cliente=id_cliente %}" class="btn btn-sm btn-success">➕ Novo Destinatário</a>
+      <a href="{% url 'emails:destinatario_base_csv_import' id_cliente=id_cliente %}" class="btn btn-sm btn-outline-info">📥 Importar CSV</a>
+    </div>
+  </div>
+
+  {% if destinatarios %}
+    {% regroup destinatarios by grupo as grupos %}
+
+    {% for g in grupos %}
+      <div class="card bg-dark border-secondary mb-4">
+        <div class="card-header text-white fw-bold">
+          📁 {{ g.grouper|default:"Sem Grupo" }}
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-dark table-bordered table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="text-center">Ações</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Tipo</th>
+                <th>Ativo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in g.list %}
+              <tr>
+                <td class="text-center">
+                  <a href="{% url 'emails:destinatario_base_update' pk=d.pk id_cliente=id_cliente %}" class="btn btn-sm btn-outline-primary me-1">✏️</a>
+                  <a href="{% url 'emails:destinatario_base_delete' pk=d.pk id_cliente=id_cliente %}" class="btn btn-sm btn-outline-danger">🗑️</a>
+                </td>
+                <td>{{ d.nome|default:"-" }}</td>
+                <td>{{ d.email }}</td>
+                <td>{{ d.get_tipo_display }}</td>
+                <td>{% if d.ativo %}✅{% else %}❌{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-warning">Nenhum destinatário cadastrado para este cliente.</div>
+  {% endif %}
+</div>
+{% endblock %}

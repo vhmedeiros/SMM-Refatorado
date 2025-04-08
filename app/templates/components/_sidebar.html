@@ -1,133 +1,119 @@
-<div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3 bg-dark min-vh-100" id="sidebar">
-  <div class="collapse d-sm-block" id="menuCollapse">
-    <ul class="nav flex-column align-items-start" id="menu">
+<div id="sidebar" class="d-flex flex-column px-3 pt-4 min-vh-100 border-end shadow-sm bg-body text-body">
+  <ul class="nav flex-column" id="menu" style="gap: 5px;">
 
-      <!-- Item: Dashboard -->
-      <li>
-        <a href="#" class="nav-link px-0 align-middle text-primary">
-          <i class="bi bi-speedometer2 fs-5 text-primary"></i>
-          <span class="ms-1">Dashboard</span>
-        </a>
-      </li>
+    <!-- Item: Dashboard -->
+    <li>
+      <a href="#" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard">
+        <i class="bi bi-speedometer2 fs-5 sidebar-icon"></i>
+        <span class="sidebar-text">Dashboard</span>
+      </a>
+    </li>
 
-      <!-- Item: Clientes -->
-      <li>
-        <a href="{% url 'cliente_list' %}" class="nav-link px-0 align-middle text-primary">
-          <i class="bi bi-person fs-5 text-primary"></i>
-          <span class="ms-1">Clientes</span>
-        </a>
-      </li>
+    <!-- Item: Clientes -->
+    <li>
+      <a href="{% url 'cliente_list' %}" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Clientes">
+        <i class="bi bi-person fs-5 sidebar-icon"></i>
+        <span class="sidebar-text">Clientes</span>
+      </a>
+    </li>
 
-      <!-- Toggle de menu: Configurações -->
-      <li class="nav-item">
+    <!-- Configurações -->
+    <li>
+      <a class="nav-link rounded d-flex justify-content-between align-items-center gap-2 sidebar-link"
+         data-bs-toggle="collapse" href="#configMenu" role="button"
+         aria-expanded="false" aria-controls="configMenu"
+         data-bs-toggle="tooltip" data-bs-placement="right" title="Configurações">
+        <span class="d-flex align-items-center gap-3">
+          <i class="bi bi-gear fs-5 sidebar-icon"></i>
+          <span class="sidebar-text">Configurações</span>
+        </span>
+        <i class="bi bi-chevron-down small chevron-icon"></i>
+      </a>
 
-        <!-- 🔽 Botão que abre/fecha o submenu -->
-        <a href="#configMenu" 
-           class="nav-link px-0 align-middle text-primary d-flex justify-content-between align-items-center"
-           data-bs-toggle="collapse"          
-           role="button"                      
-           aria-expanded="false"              
-           aria-controls="configMenu">        
-          <div>
-            <i class="bi bi-gear fs-5 text-primary"></i>
-            <span class="ms-1">Configurações</span>
-          </div>
-          <i class="bi bi-chevron-down fs-6 text-primary ms-2"></i>
-        </a>
+      <ul class="collapse list-unstyled ps-4 pt-2" id="configMenu">
+        <li>
+          <a href="{% url 'config_cliente_list' %}" class="nav-link rounded small d-flex align-items-center gap-2 sidebar-link" title="Buscar Cliente">
+            <i class="bi bi-search sidebar-icon"></i> <span class="sidebar-text">Buscar Cliente</span>
+          </a>
+        </li>
 
-        <!-- 🔽 Submenu que será aberto com o botão acima -->
-        <ul class="collapse list-unstyled ms-3" id="configMenu">
-
-          <!-- Item: Buscar Cliente (sempre acessível) -->
-          <li>
-            <a href="{% url 'config_cliente_list' %}" class="nav-link text-primary">
-              <i class="bi bi-search fs-6 me-2"></i> Buscar Cliente
-            </a>
-          </li>
-
-          <!-- Itens dependentes do cliente selecionado -->
-          {% if cliente_selecionado and cliente_selecionado.id_cliente %}
-          <li>
-            <a href="#" class="nav-link text-primary validar-cliente"
-               data-url="{% url 'config_cliente_redirect' cliente_selecionado.id_cliente %}">
-              <i class="bi bi-pencil-square fs-6 me-2"></i> Cadastro
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link text-primary validar-cliente">
-              <i class="bi bi-envelope fs-6 me-2"></i> E-mails
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link text-primary validar-cliente"
-               data-url="{% url 'palavras_chave:categoria_list' cliente_selecionado.id_cliente %}">
-              <i class="bi bi-key fs-6 me-2"></i> Palavras-Chave
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link text-primary validar-cliente">
-              <i class="bi bi-file-earmark-text fs-6 me-2"></i> Relatórios
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link text-primary validar-cliente">
-              <i class="bi bi-shield-lock fs-6 me-2"></i> Segurança
-            </a>
-          </li>
-          <li>
+        {% if cliente_selecionado and cliente_selecionado.id_cliente %}
+        <li>
+          <a href="#" class="nav-link rounded small d-flex align-items-center gap-2 validar-cliente sidebar-link" data-url="{% url 'config_cliente_redirect' cliente_selecionado.id_cliente %}" title="Cadastro">
+            <i class="bi bi-pencil-square sidebar-icon"></i> <span class="sidebar-text">Cadastro</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'emails:email_list' cliente_selecionado.id_cliente %}" class="nav-link rounded small d-flex align-items-center gap-2 validar-cliente sidebar-link" title="E-mails">
+            <i class="bi bi-envelope sidebar-icon"></i> <span class="sidebar-text">E-mails</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'emails:destinatario_base_list' cliente_selecionado.id_cliente %}" class="nav-link rounded small d-flex align-items-center gap-2 validar-cliente sidebar-link" title="Destinatários">
+            <i class="bi bi-person-lines-fill sidebar-icon"></i> <span class="sidebar-text">Destinatários</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link rounded small d-flex align-items-center gap-2 validar-cliente sidebar-link" data-url="{% url 'palavras_chave:categoria_list' cliente_selecionado.id_cliente %}" title="Palavras-Chave">
+            <i class="bi bi-key sidebar-icon"></i> <span class="sidebar-text">Palavras-Chave</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link rounded small d-flex align-items-center gap-2 validar-cliente sidebar-link" title="Relatórios">
+            <i class="bi bi-file-earmark-text sidebar-icon"></i> <span class="sidebar-text">Relatórios</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link rounded small d-flex align-items-center gap-2 validar-cliente sidebar-link" title="Segurança">
+            <i class="bi bi-shield-lock sidebar-icon"></i> <span class="sidebar-text">Segurança</span>
+          </a>
+        </li>
+        <li>
           {% if cliente_selecionado and cliente_selecionado.sigla %}
-            <a href="{% url 'pagina_cliente' sigla_cliente=cliente_selecionado.sigla %}" target="_blank" class="nav-link text-primary">
-              <i class="bi bi-browser-chrome fs-6 me-2"></i> Site do Cliente
+            <a href="{% url 'pagina_cliente' sigla_cliente=cliente_selecionado.sigla %}" target="_blank" class="nav-link rounded small d-flex align-items-center gap-2 sidebar-link" title="Site do Cliente">
+              <i class="bi bi-browser-chrome sidebar-icon"></i> <span class="sidebar-text">Site do Cliente</span>
             </a>
           {% else %}
-            <a href="#" class="nav-link text-secondary disabled" title="Selecione um cliente primeiro">
-               <i class="bi bi-browser-chrome fs-6 me-2"></i> Site do Cliente
-             </a>
+            <a href="#" class="nav-link text-secondary small disabled d-flex align-items-center gap-2 sidebar-link" title="Site do Cliente">
+              <i class="bi bi-browser-chrome sidebar-icon"></i> <span class="sidebar-text">Site do Cliente</span>
+            </a>
           {% endif %}
-          </li>
-          {% endif %}
-        </ul>
-      </li>
+        </li>
+        {% endif %}
+      </ul>
+    </li>
 
-      <!-- Item: Empresas -->
-      <li>
-        <a href="{% url 'empresa_list' %}" class="nav-link px-0 align-middle text-primary">
-          <i class="bi bi-building fs-5 text-primary"></i>
-          <span class="ms-1">Empresas</span>
-        </a>
-      </li>
+    <!-- Item: Empresas -->
+    <li>
+      <a href="{% url 'empresa_list' %}" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" title="Empresas">
+        <i class="bi bi-building fs-5 sidebar-icon"></i>
+        <span class="sidebar-text">Empresas</span>
+      </a>
+    </li>
 
-      <!-- Item: Notícias -->
-      <li>
-        <a href="{% url 'noticia_list' %}" class="nav-link px-0 align-middle text-primary">
-          <i class="bi bi-newspaper fs-5 text-primary"></i>
-          <span class="ms-1">Notícias</span>
-        </a>
-      </li>
+    <!-- Item: Notícias -->
+    <li>
+      <a href="{% url 'noticia_list' %}" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" title="Notícias">
+        <i class="bi bi-newspaper fs-5 sidebar-icon"></i>
+        <span class="sidebar-text">Notícias</span>
+      </a>
+    </li>
 
-      <!-- Item: Veículos -->
-      <li>
-        <a href="{% url 'veiculo_list' %}" class="nav-link px-0 align-middle text-primary">
-          <i class="bi bi-columns fs-5 text-primary"></i>
-          <span class="ms-1">Veículos</span>
-        </a>
-      </li>
+    <!-- Item: Veículos -->
+    <li>
+      <a href="{% url 'veiculo_list' %}" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" title="Veículos">
+        <i class="bi bi-columns fs-5 sidebar-icon"></i>
+        <span class="sidebar-text">Veículos</span>
+      </a>
+    </li>
 
-      <!-- Item: Usuários -->
-      <li>
-        <a href="#" class="nav-link px-0 align-middle text-primary">
-          <i class="bi bi-people fs-5 text-primary"></i>
-          <span class="ms-1">Usuários</span>
-        </a>
-      </li>
+    <!-- Item: Usuários -->
+    <li>
+      <a href="#" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" title="Usuários">
+        <i class="bi bi-people fs-5 sidebar-icon"></i>
+        <span class="sidebar-text">Usuários</span>
+      </a>
+    </li>
 
-      <!-- Item: Sair -->
-      <li>
-        <a href="#" class="nav-link px-0 align-middle text-primary">
-          <i class="bi bi-box-arrow-left fs-5 text-primary"></i>
-          <span class="ms-1">Sair</span>
-        </a>
-      </li>
-    </ul>
-  </div>
+  </ul>
 </div>

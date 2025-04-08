@@ -10,7 +10,7 @@ urlpatterns = [
     path("", include("clientes.urls")),
     path("", include("configuracoes.urls")),
     path("", include("contratos.urls")),
-    # path("", include("emails.urls")),
+    path("", include("emails.urls")),
     path("", include("empresas.urls")),
     path("", include("eventos.urls")),
     path("", include("noticias.urls")),

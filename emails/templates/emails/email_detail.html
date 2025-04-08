@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block title %}Detalhes do Disparo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">📨 Detalhes do Disparo</h4>
+    <div class="d-flex gap-2">
+      <a href="{% url 'emails:email_list' id_cliente=id_cliente %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Lista
+      </a>
+      <a href="{% url 'emails:horario_manage' id_cliente=id_cliente id_disparo=disparo.pk %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-clock"></i> Horários
+      </a>
+      <a href="{% url 'emails:destinatario_manage' id_cliente=id_cliente id_disparo=disparo.pk %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-people"></i> Destinatários
+      </a>
+      <button onclick="abrirPreviewPersonalizado()" class="btn btn-outline-info btn-sm">
+        <i class="bi bi-eye"></i> Visualizar Preview
+      </button>
+      <a href="{% url 'emails:email_update' id_cliente=id_cliente pk=disparo.pk %}" class="btn btn-outline-warning btn-sm">
+        <i class="bi bi-pencil"></i> Editar
+      </a>
+    </div>
+  </div>
+
+  <!-- 📨 Formulário de Envio de E-mail -->
+  <form method="post" id="formEnviarEmail" class="d-flex gap-2 mb-4"
+        onsubmit="event.preventDefault(); enviarEmailManual();">
+    {% csrf_token %}
+    <input type="email" name="email" id="inputEmailDestino" placeholder="email@exemplo.com"
+           class="form-control form-control-sm w-25" required>
+    <input type="text" name="data" id="inputDataReferencia" placeholder="dd/mm/aaaa ou intervalo"
+           class="form-control form-control-sm w-25" required>
+    <button type="submit" class="btn btn-success btn-sm">
+      <i class="bi bi-send"></i> Enviar E-mail
+    </button>
+  </form>
+
+  <!-- Acordeões -->
+  <div class="accordion" id="accordionDetalhesEmail">
+
+    <!-- Detalhes do Disparo -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingDetalhes">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetalhes" aria-expanded="true" aria-controls="collapseDetalhes">
+          📨 Detalhes do Disparo
+        </button>
+      </h2>
+      <div id="collapseDetalhes" class="accordion-collapse collapse show" aria-labelledby="headingDetalhes" data-bs-parent="#accordionDetalhesEmail">
+        <div class="accordion-body">
+          <h5 class="fw-bold">{{ disparo.assunto }}</h5>
+          <p><strong>Categoria:</strong> {{ disparo.id_categoria }}</p>
+          <p><strong>Status:</strong>
+            {% if disparo.status == 'ATIVO' %}
+              <span class="badge bg-success">Ativo</span>
+            {% else %}
+              <span class="badge bg-secondary">Inativo</span>
+            {% endif %}
+          </p>
+          <p><strong>Data de Criação:</strong> {{ disparo.data_criacao|date:"d/m/Y H:i" }}</p>
+          <p><strong>Última Atualização:</strong> {{ disparo.data_atualizacao|date:"d/m/Y H:i" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout HTML -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingLayout">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLayout" aria-expanded="false" aria-controls="collapseLayout">
+          🎨 Layout do E-mail
+        </button>
+      </h2>
+      <div id="collapseLayout" class="accordion-collapse collapse" aria-labelledby="headingLayout" data-bs-parent="#accordionDetalhesEmail">
+        <div class="accordion-body">
+          {% if disparo.estilo_geral %}
+            <p><strong>Estilo CSS Geral:</strong></p>
+            <pre class="bg-black p-2 text-white small">{{ disparo.estilo_geral }}</pre>
+          {% endif %}
+          {% if disparo.cabecalho_html %}
+            <p><strong>Cabeçalho HTML:</strong></p>
+            <pre class="bg-black p-2 text-white small">{{ disparo.cabecalho_html }}</pre>
+          {% endif %}
+          {% if disparo.titulo_html %}
+            <p><strong>Título da Notícia:</strong></p>
+            <pre class="bg-black p-2 text-white small">{{ disparo.titulo_html }}</pre>
+          {% endif %}
+          {% if disparo.rodape_html %}
+            <p><strong>Rodapé HTML:</strong></p>
+            <pre class="bg-black p-2 text-white small">{{ disparo.rodape_html }}</pre>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Horários -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingHorarios">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHorarios" aria-expanded="false" aria-controls="collapseHorarios">
+          ⏰ Horários de Disparo
+        </button>
+      </h2>
+      <div id="collapseHorarios" class="accordion-collapse collapse" aria-labelledby="headingHorarios" data-bs-parent="#accordionDetalhesEmail">
+        <div class="accordion-body">
+          {% if horarios %}
+            <ul class="list-group list-group-flush">
+              {% for h in horarios %}
+                <li class="list-group-item bg-dark text-white border-secondary">
+                  {{ h.get_dia_semana_display }} – {{ h.horario|time:"H:i" }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="text-muted">Nenhum horário definido para este disparo.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Destinatários -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingDestinatarios">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDestinatarios" aria-expanded="false" aria-controls="collapseDestinatarios">
+          👥 Destinatários
+        </button>
+      </h2>
+      <div id="collapseDestinatarios" class="accordion-collapse collapse" aria-labelledby="headingDestinatarios" data-bs-parent="#accordionDetalhesEmail">
+        <div class="accordion-body">
+          {% if destinatarios %}
+            <ul class="list-group list-group-flush">
+              {% for d in destinatarios %}
+                <li class="list-group-item bg-dark text-white border-secondary">
+                  {{ d.email }} | {{ d.get_tipo_display }} {% if not d.ativo %}<span class="text-warning">(Inativo)</span>{% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="text-muted">Nenhum destinatário adicionado.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Histórico -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingHistorico">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHistorico" aria-expanded="false" aria-controls="collapseHistorico">
+          📊 Histórico de Envio
+        </button>
+      </h2>
+      <div id="collapseHistorico" class="accordion-collapse collapse" aria-labelledby="headingHistorico" data-bs-parent="#accordionDetalhesEmail">
+        <div class="accordion-body">
+          {% if historico %}
+            <table class="table table-sm table-hover table-bordered table-dark align-middle">
+              <thead class="table-secondary text-dark">
+                <tr>
+                  <th>Data Agendada</th>
+                  <th>Data Enviada</th>
+                  <th>Status</th>
+                  <th>Mensagem</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for h in historico %}
+                <tr>
+                  <td>{{ h.data_hora_agendada|date:"d/m/Y H:i" }}</td>
+                  <td>{{ h.data_hora_enviada|date:"d/m/Y H:i" }}</td>
+                  <td>{{ h.status }}</td>
+                  <td>{{ h.mensagem_retorno|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <div class="alert alert-warning">Nenhum histórico de envio encontrado para este disparo.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function abrirPreviewPersonalizado() {
+  const input = prompt(`Informe uma data para gerar a visualização do email!\nVocê pode utilizar os seguintes padrões:\n\n` +
+    `• Dia de referência: dd/mm/aaaa\n` +
+    `• Dia e hora de referência: dd/mm/aaaa hh:mm\n` +
+    `• Início e fim do período: dd/mm/aaaa|dd/mm/aaaa\n` +
+    `• Início e fim do período com hora: dd/mm/aaaa hh:mm|dd/mm/aaaa hh:mm`);
+
+  if (input) {
+    const url = `{% url 'emails:preview_email_render' id_cliente=id_cliente id_disparo=disparo.pk %}?data=` + encodeURIComponent(input);
+    window.open(url, "_blank");
+  }
+}
+
+function enviarEmailManual() {
+  const email = document.getElementById("inputEmailDestino").value;
+  const data = document.getElementById("inputDataReferencia").value;
+  const url = "{% url 'emails:enviar_email_manual' id_cliente=id_cliente id_disparo=disparo.pk %}";
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: `email=${encodeURIComponent(email)}&data=${encodeURIComponent(data)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.mensagem) {
+      alert(data.mensagem);
+    } else {
+      alert("Erro: " + data.erro);
+    }
+  })
+  .catch(error => {
+    alert("Falha na requisição: " + error);
+  });
+}
+</script>
+{% endblock %}

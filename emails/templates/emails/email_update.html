@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Editar Disparo de E-mail{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">📬 Editar Disparo de E-mail</h4>
+    
+    <a href="{% url 'emails:horario_manage' id_cliente=id_cliente id_disparo=object.pk %}"
+    class="btn btn-secondary btn-sm">⏰ Editar Horários</a>
+
+    <a href="{% url 'emails:destinatario_manage' id_cliente=id_cliente id_disparo=object.pk %}"
+    class="btn btn-primary btn-sm">👥 Editar Destinatários</a>
+    
+    <a href="{% url 'emails:email_list' id_cliente=id_cliente %}" class="btn btn-outline-secondary btn-sm">← Voltar para Lista</a>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <!-- 📄 Informações do Disparo -->
+    <fieldset class="border rounded-3 p-3 mb-4">
+      <legend class="w-auto px-2">📄 Informações do Disparo</legend>
+
+      <div class="mb-3">
+        {{ form.id_categoria.label_tag }}{{ form.id_categoria|add_class:"form-select" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.assunto.label_tag }}{{ form.assunto|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.status.label_tag }}{{ form.status|add_class:"form-select" }}
+      </div>
+    </fieldset>
+
+    <!-- 🎨 Layout HTML -->
+    <fieldset class="border rounded-3 p-3 mb-4">
+      <legend class="w-auto px-2">🎨 Layout do E-mail</legend>
+
+      <div class="mb-3">
+        {{ form.estilo_geral.label_tag }}{{ form.estilo_geral|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.cabecalho_html.label_tag }}{{ form.cabecalho_html|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.titulo_html.label_tag }}{{ form.titulo_html|add_class:"form-control" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.rodape_html.label_tag }}{{ form.rodape_html|add_class:"form-control" }}
+      </div>
+    </fieldset>
+
+    <div class="d-flex justify-content-edn gap-2 mb-4">
+      <a href="{% url 'emails:horario_manage' id_cliente=id_cliente id_disparo=object.pk %}"
+         class="btn btn-secondary btn-sm">⏰ Editar Horários</a>
+
+      <a href="{% url 'emails:destinatario_manage' id_cliente=id_cliente id_disparo=object.pk %}"
+         class="btn btn-primary btn-sm">👥 Editar Destinatários</a>
+    </div>
+
+    <div class="mt-4 d-flex gap-2 mb-5">
+      <button type="submit" class="btn btn-success">💾 Salvar Alterações</button>
+      <a href="{% url 'emails:email_list' id_cliente=id_cliente %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
