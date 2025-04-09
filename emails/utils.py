@@ -1,19 +1,16 @@
+from decouple import config
 import requests
 from django.template.loader import render_to_string
 from noticias.models import NoticiaImportada
 from datetime import datetime, timedelta
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 
 def gerar_conteudo_email(disparo, data=None):
     """
     Gera o conteúdo HTML do e-mail com base nas notícias e no layout configurado no disparo.
-    
-    Parâmetros:
-        - disparo: instância do EmailDisparo
-        - data: string no formato "YYYY-MM-DD", "YYYY-MM-DD HH:MM", ou "YYYY-MM-DD|YYYY-MM-DD"
-    
-    Retorno:
-        - HTML renderizado com as notícias no intervalo informado
     """
     data_inicio = None
     data_fim = None
@@ -30,13 +27,11 @@ def gerar_conteudo_email(disparo, data=None):
         data_fim = datetime.now()
         data_inicio = data_fim - timedelta(days=1)
 
-    # Busca notícias dentro do intervalo e da categoria
     noticias = NoticiaImportada.objects.filter(
         dt_noticia__range=(data_inicio, data_fim),
         cd_veiculo__id_categoria=disparo.id_categoria.pk
     ).order_by('-dt_noticia')
 
-    # Renderiza o HTML com o template base
     html = render_to_string("emails/components/email_base_render.html", {
         "disparo": disparo,
         "noticias": noticias,
@@ -48,20 +43,9 @@ def gerar_conteudo_email(disparo, data=None):
 def enviar_email_mailgrid(destinatarios, assunto, corpo_html):
     """
     Envia um e-mail utilizando a API da Mailgrid.
-
-    Parâmetros:
-        - destinatarios: lista de e-mails de destino
-        - assunto: título do e-mail
-        - corpo_html: conteúdo HTML gerado do e-mail
-
-    Retorna:
-        - Dicionário com status e resposta da API
     """
-
     url = "https://api.mailgrid.net.br/send/"
-    
-    # ⚠️ Token fixo no código por enquanto
-    token = "4747f5ab12120fa83b4a86df6c324c9d"
+    token = config("MAILGRID_TOKEN")
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -69,7 +53,7 @@ def enviar_email_mailgrid(destinatarios, assunto, corpo_html):
     }
 
     payload = {
-        "emailRemetente": "teste@smrclipping.com.br",     # ⚠️ Use o remetente configurado na Mailgrid
+        "emailRemetente": "teste@smrclipping.com.br",
         "nomeRemetente": "SMR Clipping",
         "emailDestino": destinatarios,
         "assunto": assunto,
@@ -101,39 +85,24 @@ def enviar_email_mailgrid(destinatarios, assunto, corpo_html):
         }
 
 
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
-
 def enviar_email_smtp(destinatarios, assunto, corpo_html):
     """
     Envia um e-mail HTML usando SMTP (Mailgrid).
-
-    Parâmetros:
-        - destinatarios: lista de e-mails destino
-        - assunto: assunto do e-mail
-        - corpo_html: conteúdo HTML do e-mail
     """
+    smtp_host = config("SMTP_HOST")
+    smtp_port = config("SMTP_PORT", cast=int)  # Cast para garantir que seja inteiro
+    smtp_user = config("SMTP_USER")
+    smtp_pass = config("SMTP_PASS")
 
-    # ⚠️ Você pode mover isso para um .env depois
-    smtp_host = "grid331.mailgrid.com.br"
-    smtp_port = 587
-    smtp_user = "smtp@newsup.app.br"
-    smtp_pass = "v8yW98XM7cFI"
-
-    # Cabeçalhos do e-mail
     msg = MIMEMultipart("alternative")
     msg["Subject"] = assunto
     msg["From"] = smtp_user
     msg["To"] = ", ".join(destinatarios)
 
-    # Conteúdo em HTML
     part = MIMEText(corpo_html, "html")
     msg.attach(part)
 
     try:
-        # Envia usando SMTP com TLS
         with smtplib.SMTP(smtp_host, smtp_port) as server:
             server.starttls()
             server.login(smtp_user, smtp_pass)

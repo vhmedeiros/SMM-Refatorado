@@ -26,7 +26,7 @@
 
                                             <h6 class="fw-bold mb-1">
                                                 {% if noticia.ds_url %}
-                                                    <a href="{{ noticia.ds_url }}" target="_blank" class="text-decoration-none text-dark">
+                                                    <a href="{% url 'noticia_detail' sigla_cliente=config.sigla_cliente cd_noticia=noticia.cd_noticia %}" target="_blank" class="text-decoration-none text-dark">
                                                         {{ noticia.titulo|upper }}
                                                     </a>
                                                 {% else %}

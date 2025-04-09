@@ -44,22 +44,6 @@ class EmailDisparoForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-select'}),
         }
 
-# EmailHorarioDisparoFormSet = inlineformset_factory(
-#     EmailDisparo,
-#     EmailHorarioDisparo,
-#     fields=["dia_semana", "horario"],
-#     extra=1,
-#     can_delete=True,
-#     widgets={
-#         'dia_semana': forms.Select(attrs={'class': 'form-select'}),
-#         'horario': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'})
-#     },
-#     labels={
-#         'dia_semana': 'Dia da Semana',
-#         'horario': 'Horário'
-#     }
-# )
-
 class EmailHorarioDisparoForm(forms.ModelForm):
     class Meta:
         model = EmailHorarioDisparo
@@ -162,17 +146,3 @@ class EmailDestinatarioForm(forms.ModelForm):
         if not email:
             raise forms.ValidationError("O e-mail é obrigatório.")
         return email
-
-
-# class EmailDisparoForm(forms.ModelForm):
-#     class Meta:
-#         model = EmailDisparo
-#         fields = ['assunto']
-
-# EmailHorarioDisparoFormSet = inlineformset_factory(
-#     EmailDisparo,
-#     EmailHorarioDisparo,
-#     fields=["dia_semana", "horario"],
-#     extra=1,
-#     can_delete=True
-# )

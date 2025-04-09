@@ -2,6 +2,8 @@ import csv
 import requests
 from collections import OrderedDict
 from datetime import datetime, timedelta
+from django.utils import timezone
+from django.utils.timezone import localtime
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -13,9 +15,11 @@ from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, FormView, View, TemplateView
 from django.urls import reverse_lazy, reverse
 from django.forms.models import inlineformset_factory
+from django.template import engines
 from clientes.models import ErpCliente
 from noticias.models import NoticiaImportada
 from veiculos.models import Veiculosistemas
+from configuracoes.models import ConfiguracaoCliente
 from palavras_chave.models import Categoriapalavrachave, Palavrachave
 from .models import EmailDisparo, EmailHorarioDisparo, EmailDestinatario, EmailHistoricoDisparo, EmailDestinatarioBase
 from .forms import EmailDisparoForm, EmailDestinatarioBaseForm, EmailDestinatarioBaseCSVForm, EmailDestinatarioForm, EmailHorarioDisparoForm
@@ -640,95 +644,7 @@ def enviar_email_simples(request, id_cliente, id_disparo):
     # Redireciona de volta para os detalhes do disparo
     return redirect(reverse("emails:email_detail", args=[id_cliente, id_disparo]))
 
-# @csrf_exempt  # Permite testes sem CSRF (remover em produção se não for API)
-# def enviar_email_manual(request, id_cliente, id_disparo):
-#     if request.method != "POST":
-#         return JsonResponse({"erro": "Método não permitido"}, status=405)
 
-#     disparo = get_object_or_404(EmailDisparo, pk=id_disparo, id_cliente_id=id_cliente)
-
-#     email_destino = request.POST.get("email")
-#     data_str = request.POST.get("data")
-
-#     if not email_destino or not data_str:
-#         return JsonResponse({"erro": "Campos obrigatórios não enviados"}, status=400)
-
-#     # Função auxiliar para interpretar a data
-#     def parse_data(input_str):
-#         try:
-#             if '|' in input_str:
-#                 partes = input_str.split('|')
-#                 dt_inicio = datetime.strptime(partes[0].strip(), "%d/%m/%Y")
-#                 dt_fim = datetime.strptime(partes[1].strip(), "%d/%m/%Y")
-#             elif len(input_str.strip()) <= 10:
-#                 dt_inicio = datetime.strptime(input_str.strip(), "%d/%m/%Y")
-#                 dt_fim = dt_inicio
-#             else:
-#                 dt_inicio = datetime.strptime(input_str.strip(), "%d/%m/%Y %H:%M")
-#                 dt_fim = dt_inicio
-#             return dt_inicio, dt_fim
-#         except Exception:
-#             return None, None
-
-#     dt_inicio, dt_fim = parse_data(data_str)
-#     if not dt_inicio or not dt_fim:
-#         return JsonResponse({"erro": "Formato de data inválido"}, status=400)
-
-#     # Busca palavras-chave vinculadas à categoria
-#     palavras = Palavrachave.objects.filter(
-#         id_categoria=disparo.id_categoria,
-#         status=True
-#     )
-
-#     # Monta query dinâmica com todas as palavras
-#     query = Q()
-#     for palavra in palavras:
-#         query |= Q(titulo__icontains=palavra.palavra) | Q(conteudo__icontains=palavra.palavra)
-
-#     # Busca notícias com base na categoria e palavras-chave
-#     noticias = NoticiaImportada.objects.filter(
-#         dt_noticia__range=(dt_inicio, dt_fim)
-#     ).filter(query)
-
-#     # Renderiza HTML final do e-mail
-#     corpo_html = render_to_string("emails/components/email_base_render.html", {
-#         "estilo_geral": disparo.estilo_geral,
-#         "cabecalho_html": disparo.cabecalho_html,
-#         "titulo_html": disparo.titulo_html,
-#         "rodape_html": disparo.rodape_html,
-#         "noticias": noticias
-#     })
-
-#     # Envia o e-mail
-#     resposta = enviar_email_mailgrid(
-#         destinatarios=[email_destino],
-#         assunto=disparo.assunto,
-#         corpo_html=corpo_html
-#     )
-
-#     if resposta["status"] == "ok":
-#         return JsonResponse({"mensagem": "E-mail enviado com sucesso!"})
-#     else:
-#         return JsonResponse({
-#             "erro": "Falha ao enviar",
-#             "detalhes": resposta.get("mensagem")
-#         }, status=500)
-        
-#         # Envia a requisição
-#     response = requests.post(url, json=payload, headers=headers)
-
-#     # LOG DA RESPOSTA
-#     print("🔁 Mailgrid:", response.status_code, response.text)
-
-#     # Retorno
-#     if response.status_code == 200:
-#         return {"status": "ok", "resposta": response.json()}
-#     else:
-#         return {
-#             "status": "erro",
-#             "codigo": response.status_code,
-#             "mensagem": response.text
-#         }
 
 @csrf_exempt
 def enviar_email_manual(request, id_cliente, id_disparo):
@@ -762,29 +678,53 @@ def enviar_email_manual(request, id_cliente, id_disparo):
     if not dt_inicio or not dt_fim:
         return JsonResponse({"erro": "Formato de data inválido"}, status=400)
 
-    # Busca palavras-chave da categoria
     palavras = Palavrachave.objects.filter(id_categoria=disparo.id_categoria)
 
-    # Monta o filtro dinâmico
     query = Q()
     for palavra in palavras:
         query |= Q(titulo__icontains=palavra.palavra) | Q(conteudo__icontains=palavra.palavra)
 
-    # Filtra as notícias por data + palavras-chave
     noticias = NoticiaImportada.objects.filter(
         dt_noticia__date__range=(dt_inicio.date(), dt_fim.date())
-    ).filter(query)
+    ).filter(query).select_related('cd_veiculo')
 
-    # Gera HTML com o template renderizado
+    # Agrupar por veículo
+    agrupadas = {}
+    for noticia in noticias:
+        veiculo_nome = noticia.cd_veiculo.nome_veiculo.upper() if noticia.cd_veiculo else "SEM VEÍCULO"
+        if veiculo_nome not in agrupadas:
+            agrupadas[veiculo_nome] = []
+        agrupadas[veiculo_nome].append(noticia)
+
+    # Obter configuração do cliente
+    configuracao_cliente = get_object_or_404(ConfiguracaoCliente, id_cliente=disparo.id_cliente)
+
+    # Gerar links para cada notícia
+    links_noticias = {}
+    for noticia in noticias:
+        url = reverse("noticia_detail", kwargs={
+            "sigla_cliente": configuracao_cliente.sigla_cliente,
+            "cd_noticia": noticia.cd_noticia
+        })
+        full_url = request.build_absolute_uri(url)
+        links_noticias[noticia.cd_noticia] = full_url
+
+    logo_url = configuracao_cliente.logotipo.url if configuracao_cliente.logotipo and hasattr(configuracao_cliente.logotipo, 'url') else ""
+    data_envio = localtime().strftime("%d/%m/%Y")
+    nome_cliente = configuracao_cliente.nome_cliente_sistema
+
     corpo_html = render_to_string("emails/components/email_base_render.html", {
         "estilo_geral": disparo.estilo_geral,
         "cabecalho_html": disparo.cabecalho_html,
         "titulo_html": disparo.titulo_html,
         "rodape_html": disparo.rodape_html,
-        "noticias": noticias
+        "agrupadas": agrupadas,
+        "logo_url": logo_url,
+        "data_envio": data_envio,
+        "nome_cliente": nome_cliente,
+        "links_noticias": links_noticias,
     })
 
-    # Dispara o e-mail via SMTP
     resposta = enviar_email_smtp(
         destinatarios=[email_destino],
         assunto=disparo.assunto,
