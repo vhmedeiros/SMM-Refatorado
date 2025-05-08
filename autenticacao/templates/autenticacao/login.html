@@ -1,0 +1,29 @@
+{% extends "autenticacao/base_login.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="login-container">
+  <img src="/static/img/logo_smm.png" alt="Logo" class="login-logo">
+
+  <h4 class="text-center mb-4">Acesso ao Sistema</h4>
+
+  <form method="post" action="">
+    {% csrf_token %}
+    {% if request.GET.next %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+    {% endif %}
+    <div class="mb-3">
+      <label for="id_username" class="form-label">Usuário</label>
+      {{ form.username|add_class:"form-control" }}
+    </div>
+    <div class="mb-3">
+      <label for="id_password" class="form-label">Senha</label>
+      {{ form.password|add_class:"form-control" }}
+    </div>
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary">Entrar</button>
+    </div>
+  </form>
+  
+</div>
+{% endblock %}

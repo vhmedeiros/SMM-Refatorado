@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de Notícias{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+
+  <!-- Título principal -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">📊 Painel de Acompanhamento de Notícias</h3>
+  </div>
+
+  <!-- Cards de contagem -->
+  <div class="row g-3 mb-4">
+    {% for label, valor in quantidades.items %}
+    <div class="col-md-2 col-6">
+      <div class="card border-primary shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="text-uppercase text-muted small mb-1">{{ label|title }}</h6>
+          <div class="fs-4 fw-bold">{{ valor }}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row g-4">
+    <!-- Origem -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-primary text-white fw-semibold">
+          <i class="bi bi-cloud-arrow-down-fill me-1"></i> Origem das Notícias
+        </div>
+        <div class="card-body">
+          <canvas id="graficoOrigem"></canvas>
+          <p class="text-muted mt-2 small">Comparativo entre notícias <strong>importadas automaticamente</strong> e <strong>cadastradas manualmente</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipo de Veículo -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-success text-white fw-semibold">
+          <i class="bi bi-broadcast-pin me-1"></i> Distribuição por Tipo de Veículo
+        </div>
+        <div class="card-body">
+          <canvas id="graficoVeiculo"></canvas>
+          <p class="text-muted mt-2 small">Classificação por mídia: TV, Rádio, Impressa, etc.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Gráfico de Origem
+  new Chart(document.getElementById("graficoOrigem"), {
+    type: 'doughnut',
+    data: {
+      labels: ["Importadas", "Manuais"],
+      datasets: [{
+        data: [{{ origem.importadas }}, {{ origem.manuais }}],
+        backgroundColor: ["#0d6efd", "#6c757d"]
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return ctx.raw + ' notícia' + (ctx.raw !== 1 ? 's' : '');
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Gráfico de Tipo de Veículo
+  new Chart(document.getElementById("graficoVeiculo"), {
+    type: 'bar',
+    data: {
+      labels: [{% for item in tipos_veiculo %}"{{ item.cd_veiculo__tipo_veiculo__descricao_tipo_veiculo }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+      datasets: [{
+        label: "Qtd. de Notícias",
+        data: [{% for item in tipos_veiculo %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+        backgroundColor: "#198754"
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return ctx.raw + ' notícia' + (ctx.raw !== 1 ? 's' : '');
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
+      }
+    }
+  });
+</script>
+
+<!-- Ranking dos Veículos -->
+<div class="row mt-5">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-trophy me-1"></i> Veículos com Mais Notícias
+        </div>
+        <div class="card-body">
+          <table class="table table-sm table-hover table-dark align-middle">
+            <thead class="table-secondary text-dark">
+              <tr>
+                <th>Veículo</th>
+                <th class="text-end">Qtd</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in ranking_veiculos %}
+                <tr>
+                  <td>{{ item.cd_veiculo__nome_veiculo }}</td>
+                  <td class="text-end">{{ item.total }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="2">Nenhum dado encontrado.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <p class="text-muted small mb-0 mt-2">Top 5 veículos que mais apareceram nas notícias importadas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}

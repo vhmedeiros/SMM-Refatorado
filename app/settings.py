@@ -1,3 +1,4 @@
+from django.urls import reverse_lazy
 from pathlib import Path
 from decouple import config
 import os
@@ -29,6 +30,7 @@ INSTALLED_APPS = [
     "clientes",
     "configuracoes",
     "contratos",
+    "dashboard",
     "emails",
     "empresas",
     "eventos",
@@ -48,6 +50,7 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "app.middleware.login_required_middleware.LoginRequiredMiddleware", # para login
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -116,3 +119,11 @@ SESSION_COOKIE_SECURE = False  # ❗ Permite manter sessões sem HTTPS
 # ⚠️ Manter estas duas ativa
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "DENY"
+
+# LOGIN_URL = '/login/'
+# LOGIN_REDIRECT_URL = '/autenticacao/perfil/'
+# LOGOUT_REDIRECT_URL = '/login/'
+
+LOGIN_URL = reverse_lazy('login')
+LOGOUT_REDIRECT_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = reverse_lazy('perfil')

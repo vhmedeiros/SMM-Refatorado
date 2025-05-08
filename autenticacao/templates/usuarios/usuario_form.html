@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}{{ view.object.pk|yesno:"✏️ Editar Usuário,➕ Criar Usuário" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h4 class="mb-3">{{ view.object.pk|yesno:"✏️ Editar Usuário,➕ Criar Novo Usuário" }}</h4>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row g-3">
+      {% for field in form.visible_fields %}
+      <div class="col-md-6">
+        <label class="form-label">{{ field.label }}</label>
+        {{ field|add_class:"form-control" }}
+        {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-4 d-flex justify-content-end gap-2">
+      <button type="submit" class="btn btn-success">
+        <i class="bi bi-check-circle"></i> Salvar
+      </button>
+      <a href="{% url 'usuario_list' %}" class="btn btn-secondary">
+        <i class="bi bi-x-circle"></i> Cancelar
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

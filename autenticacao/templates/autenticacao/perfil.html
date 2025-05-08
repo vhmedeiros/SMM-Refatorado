@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Perfil do Usuário{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">👤 Meu Perfil</h4>
+    <a href="{% url 'editar_perfil' %}" class="btn btn-outline-warning btn-sm">
+      <i class="bi bi-pencil"></i> Editar Perfil
+    </a>
+  </div>
+
+  <div class="accordion" id="accordionPerfil">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingInfo">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInfo" aria-expanded="true" aria-controls="collapseInfo">
+          📝 Informações do Usuário
+        </button>
+      </h2>
+      <div id="collapseInfo" class="accordion-collapse collapse show" aria-labelledby="headingInfo" data-bs-parent="#accordionPerfil">
+        <div class="accordion-body">
+          <p><strong>Nome Completo:</strong> {{ request.user.get_full_name }}</p>
+          <p><strong>Usuário:</strong> {{ request.user.username }}</p>
+          <p><strong>Email:</strong> {{ request.user.email }}</p>
+          <p><strong>Grupos:</strong>
+            {% if request.user.groups.all %}
+              {{ request.user.groups.all|join:", " }}
+            {% else %}
+              <span class="text-muted">Nenhum grupo atribuído</span>
+            {% endif %}
+          </p>
+          <p><strong>Último login:</strong> {{ request.user.last_login|date:"d/m/Y H:i" }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

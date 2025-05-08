@@ -1,15 +1,18 @@
-# from . import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from autenticacao.views import CustomLoginView  # 👈 IMPORTAÇÃO AQUI
 
 urlpatterns = [
+    path("login/", CustomLoginView.as_view(), name="login"),  # 👈 REGISTRO EXPLÍCITO
+
     path("admin/", admin.site.urls),
-    # path("", include("autenticacao.urls")),
+    path("", include("autenticacao.urls")),
     path("", include("clientes.urls")),
     path("", include("configuracoes.urls")),
     path("", include("contratos.urls")),
+    path("", include("dashboard.urls")),
     path("", include("emails.urls")),
     path("", include("empresas.urls")),
     path("", include("eventos.urls")),

@@ -3,7 +3,7 @@
 
     <!-- Item: Dashboard -->
     <li>
-      <a href="#" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard">
+      <a href="{% url 'dashboard' %}" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard">
         <i class="bi bi-speedometer2 fs-5 sidebar-icon"></i>
         <span class="sidebar-text">Dashboard</span>
       </a>
@@ -109,7 +109,7 @@
 
     <!-- Item: Usuários -->
     <li>
-      <a href="#" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" title="Usuários">
+      <a href="{% url 'usuario_list' %}" class="nav-link rounded d-flex align-items-center gap-3 sidebar-link" title="Usuários">
         <i class="bi bi-people fs-5 sidebar-icon"></i>
         <span class="sidebar-text">Usuários</span>
       </a>
