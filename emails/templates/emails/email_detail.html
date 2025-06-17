@@ -50,7 +50,13 @@
       <div id="collapseDetalhes" class="accordion-collapse collapse show" aria-labelledby="headingDetalhes" data-bs-parent="#accordionDetalhesEmail">
         <div class="accordion-body">
           <h5 class="fw-bold">{{ disparo.assunto }}</h5>
-          <p><strong>Categoria:</strong> {{ disparo.id_categoria }}</p>
+          <p><strong>Categoria:</strong> 
+            {% for cat in disparo.categorias.all %}
+              {{ cat.nome }}{% if not forloop.last %} | {% endif %}
+            {% empty %}
+              <span class="text-muted">Nenhuma categoria associada</span>
+            {% endfor %}
+          </p>
           <p><strong>Status:</strong>
             {% if disparo.status == 'ATIVO' %}
               <span class="badge bg-success">Ativo</span>

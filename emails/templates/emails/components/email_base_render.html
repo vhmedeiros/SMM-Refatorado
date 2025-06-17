@@ -1,48 +1,132 @@
-{% load custom_filters %}
+{% load email_filters %}
 {% autoescape off %}
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      padding: 20px;
+      margin: 0;
+      color: #001b4c;
+    }
+    .titulo-cliente {
+      background-color: #001b4c;
+      color: #fff;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    .subtitulo-categoria {
+      background-color: #003366;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .bloco-veiculo {
+      background-color: #002244;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin-top: 5px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    a {
+      color: #001b4c;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .data-envio {
+      text-align: center;
+      color: #001b4c;
+      font-size: 14px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+    }
+    .logo img {
+      height: 60px;
+    }
+    .rodape {
+      margin-top: 30px;
+      color: #777;
+      font-size: 12px;
+      text-align: center;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
     {{ estilo_geral|default:"" }}
   </style>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+<body>
 
-  <!-- Cabeçalho com logo -->
-  <div style="text-align: center; padding: 10px 0;">
+  <!-- Texto anti-truncamento Gmail -->
+  <p style="font-size: 14px; color: #333; margin-bottom: 12px;">
+    Segue abaixo o clipping de notícias para o cliente {{ nome_cliente }} referente ao dia {{ data_envio }}.
+  </p>
+
+  <!-- Logo -->
+  <div class="logo" style="text-align: center;">
     {% if logo_url %}
-      <img src="{{ logo_url }}" alt="Logo do Cliente" style="height: 60px;">
+      <img src="{{ logo_url }}" alt="Logo do Cliente">
     {% else %}
-      <img src="https://logospng.org/download/banco-do-brasil/logo-banco-do-brasil-4096.png" alt="Logo Banco do Brasil" style="height: 60px;">
+      <img src="https://logospng.org/download/banco-do-brasil/logo-banco-do-brasil-4096.png" alt="Logo Banco do Brasil">
     {% endif %}
   </div>
-  <p style="text-align: center; color: #001b4c; font-size: 14px; margin-top: 10px;">
+
+  <!-- Data -->
+  <p class="data-envio">
     {{ data_envio }}
   </p>
-  <h2 style="text-align: center; background-color: #001b4c; color: #fff; padding: 10px; border-radius: 5px;">
-    {{ nome_cliente|upper }}
-  </h2>
 
-  <!-- Agrupadas por veículo -->
+  <!-- Nome Cliente -->
+  <div class="titulo-cliente">
+    {{ nome_cliente|upper }}
+  </div>
+
+  <!-- Nome da Categoria (Opcional) -->
+  {% if nome_categoria %}
+    <div class="subtitulo-categoria">
+      {{ nome_categoria|upper }}
+    </div>
+  {% endif %}
+
+  <!-- Notícias por Veículo -->
   {% for veiculo, noticias in agrupadas.items %}
-    <h4 style="margin-top: 30px; color: #001b4c;">{{ veiculo }}</h4>
-    <ul style="list-style: none; padding-left: 0;">
+    <div class="bloco-veiculo">{{ veiculo }}</div>
+    <ul>
       {% for noticia in noticias %}
-        <li style="margin-bottom: 5px;">
-          <a href="{{ links_noticias|get_item:noticia.cd_noticia }}" target="_blank" style="color: #001b4c; text-decoration: none;">
-            &bull; {{ noticia.titulo }}
+        <li>
+          <a href="{{ links_noticias|get_item:noticia.cd_noticia }}" target="_blank">
+            • {{ noticia.titulo }}
           </a>
         </li>
       {% endfor %}
     </ul>
-    <hr>
   {% endfor %}
 
   <!-- Rodapé -->
   {% if rodape_html %}
-    <div style="margin-top: 30px; color: #999; font-size: 12px; text-align: center;">
+    <div class="rodape">
       {{ rodape_html }}
     </div>
   {% endif %}

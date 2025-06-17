@@ -18,12 +18,19 @@ class EmailHorarioDisparoInline(admin.TabularInline):
 # 📬 Admin do modelo principal de disparos
 @admin.register(EmailDisparo)
 class EmailDisparoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'assunto', 'id_cliente', 'id_categoria', 'status')
+    
+    list_display = ('id', 'assunto', 'id_cliente', 'listar_categorias', 'status')
+
     list_filter = ('status',)
     search_fields = ('assunto',)
     readonly_fields = ('data_criacao', 'data_atualizacao')
     ordering = ('-data_criacao',)
     inlines = [EmailHorarioDisparoInline]  # permite adicionar horários diretamente no disparo
+
+    def listar_categorias(self, obj):
+        return ", ".join([cat.nome for cat in obj.categorias.all()])
+
+    listar_categorias.short_description = 'Categorias'
 
 # 📩 Admin para visualização e edição de destinatários vinculados ao disparo
 @admin.register(EmailDestinatario)

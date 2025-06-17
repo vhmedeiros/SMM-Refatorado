@@ -19,7 +19,15 @@
       <legend class="w-auto px-2">📄 Informações do Disparo</legend>
 
       <div class="mb-3">
-        {{ form.id_categoria.label_tag }}{{ form.id_categoria|add_class:"form-select" }}
+        {{ form.categorias.label_tag }}
+
+        <div class="form-check mb-2">
+          <input type="checkbox" class="form-check-input" id="selecionar_todas_categorias">
+          <label class="form-check-label" for="selecionar_todas_categorias">Selecionar Todas</label>
+        </div>
+
+        {{ form.categorias|add_class:"form-select" }}
+        <div class="form-text">Segure CTRL (ou ⌘) para selecionar múltiplas categorias.</div>
       </div>
 
       <div class="mb-3">
@@ -75,4 +83,19 @@
     </div>
   </form>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const selectTodas = document.getElementById("selecionar_todas_categorias");
+    const selectCategorias = document.getElementById("id_categorias");  // Django gera esse id padrão
+
+    if (selectTodas && selectCategorias) {
+      selectTodas.addEventListener("change", function () {
+        for (const option of selectCategorias.options) {
+          option.selected = this.checked;
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}

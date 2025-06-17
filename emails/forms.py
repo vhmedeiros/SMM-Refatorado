@@ -5,20 +5,29 @@ from django.forms.models import inlineformset_factory
 
 class EmailDisparoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+        cliente = kwargs.pop('cliente', None) # cliente é passado pela view
         super().__init__(*args, **kwargs)
 
-        # Força o campo de categoria (alguns campos somem quando o model é managed=False)
-        self.fields['id_categoria'] = forms.ModelChoiceField(
-            queryset=Categoriapalavrachave.objects.all(),
-            required=True,
-            empty_label="Selecione uma categoria",
-            widget=forms.Select(attrs={'class': 'form-select'})
+        # # Força o campo de categoria (alguns campos somem quando o model é managed=False)
+        # self.fields['id_categoria'] = forms.ModelChoiceField(
+        #     queryset=Categoriapalavrachave.objects.all(),
+        #     required=True,
+        #     empty_label="Selecione uma categoria",
+        #     widget=forms.Select(attrs={'class': 'form-select'})
+        # )
+
+        # categorias
+        self.fields['categorias'] = forms.ModelMultipleChoiceField(
+            queryset=Categoriapalavrachave.objects.none() if not cliente else Categoriapalavrachave.objects.filter(id_cliente=cliente).distinct(),
+            widget=forms.SelectMultiple(attrs={'class': 'form-select'}),
+            required=False,
+            label='Categorias Vinculadas',
         )
 
     class Meta:
         model = EmailDisparo
         fields = [
-            'id_categoria',
+            'categorias',
             'assunto',
             'estilo_geral',
             'cabecalho_html',
@@ -27,7 +36,7 @@ class EmailDisparoForm(forms.ModelForm):
             'status',
         ]
         labels = {
-            'id_categoria': 'Categoria',
+            'categorias': 'Categorias Vinculadas',
             'assunto': 'Assunto',
             'estilo_geral': 'Estilo CSS Geral',
             'cabecalho_html': 'Cabeçalho HTML',

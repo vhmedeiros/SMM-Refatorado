@@ -19,9 +19,16 @@ class EmailDisparo(models.Model):
     id_cliente = models.ForeignKey(
         ErpCliente, on_delete=models.DO_NOTHING, db_column='id_cliente', verbose_name='Cliente'
     )
-    id_categoria = models.ForeignKey(
-        Categoriapalavrachave, on_delete=models.DO_NOTHING, db_column='id_categoria', verbose_name='Categoria'
+
+    # Relacionamento com a categoria de palavras-chave
+    categorias = models.ManyToManyField(
+        Categoriapalavrachave,
+        db_table='EmailDisparoCategoria',
+        verbose_name='Categorias Vinculadas',
     )
+
+   
+
     assunto = models.CharField(max_length=255, verbose_name='Assunto')
 
     # Campos de personalização do layout do e-mail

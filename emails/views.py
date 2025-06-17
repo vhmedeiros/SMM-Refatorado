@@ -10,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, HttpResponseForbidden, HttpResponse
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView, FormView, View, TemplateView
 from django.urls import reverse_lazy, reverse
@@ -59,7 +59,8 @@ class EmailDisparoListView(ListView):
     context_object_name = "disparos"
 
     def get_queryset(self):
-        return EmailDisparo.objects.filter(id_cliente=self.kwargs['id_cliente'])
+        return EmailDisparo.objects.filter(id_cliente=self.kwargs['id_cliente']).order_by('assunto')
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -76,10 +77,33 @@ class EmailDisparoCreateView(CreateView):
         context["id_cliente"] = self.kwargs["id_cliente"]
         return context
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        cliente = get_object_or_404(ErpCliente, pk=self.kwargs["id_cliente"])
+        kwargs["cliente"] = cliente
+        return kwargs
+
     def form_valid(self, form):
-        form.instance.id_cliente_id = self.kwargs["id_cliente"]
-        self.object = form.save()
-        return redirect("emails:email_update", id_cliente=self.kwargs["id_cliente"], pk=self.object.pk)
+        try:
+            self.object = form.save(commit=False)
+            self.object.id_cliente_id = self.kwargs["id_cliente"]
+            self.object.save()
+            form.save_m2m()
+            messages.success(self.request, "✅ Disparo criado com sucesso!")
+            return super().form_valid(form)
+        except Exception as e:
+            messages.error(self.request, f"❌ Erro ao criar o disparo: {str(e)}")
+            return super().form_invalid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, f"❌ Erro ao criar o disparo: {form.errors.as_text()}")
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("emails:email_detail", kwargs={
+            "id_cliente": self.kwargs["id_cliente"],
+            "pk": self.object.pk
+        })
 
 class EmailDisparoUpdateView(UpdateView):
     model = EmailDisparo
@@ -88,16 +112,38 @@ class EmailDisparoUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["id_cliente"] = self.kwargs["id_cliente"]  # Para uso nos templates e rotas
-        context["id_disparo"] = self.object.pk             # Usado pelo HTMX para montar as URLs
+        context["id_cliente"] = self.kwargs["id_cliente"]
+        context["id_disparo"] = self.object.pk
         return context
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        cliente = get_object_or_404(ErpCliente, pk=self.kwargs["id_cliente"])
+        kwargs["cliente"] = cliente
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            self.object = form.save(commit=False)
+            self.object.id_cliente_id = self.kwargs["id_cliente"]
+            self.object.save()
+            form.save_m2m()
+            messages.success(self.request, "✅ Disparo atualizado com sucesso!")
+            return super().form_valid(form)
+        except Exception as e:
+            messages.error(self.request, f"❌ Erro ao atualizar o disparo: {str(e)}")
+            return super().form_invalid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, f"❌ Erro ao atualizar o disparo: {form.errors.as_text()}")
+        return super().form_invalid(form)
+
     def get_success_url(self):
-        # Após salvar, redireciona para a própria tela de edição
         return reverse_lazy("emails:email_update", kwargs={
             "id_cliente": self.kwargs["id_cliente"],
             "pk": self.object.pk
         })
+
 
 class EmailDisparoDetailView(DetailView):
     model = EmailDisparo
@@ -490,30 +536,22 @@ def htmx_toggle_destinatario(request, id_cliente, pk):
         "id_cliente": id_cliente
     })
 
-# preview do disparo
+
 def preview_email_render(request, id_cliente, id_disparo):
     disparo = get_object_or_404(EmailDisparo, pk=id_disparo, id_cliente_id=id_cliente)
     data_str = request.GET.get("data")
-    
+
     if not data_str:
         return HttpResponseBadRequest("Parâmetro de data inválido")
 
-    # Interpretação da data
     def parse_data(input_str):
         try:
-            if '|' in input_str:
-                partes = input_str.split('|')
+            if "|" in input_str:
+                partes = input_str.split("|")
                 dt_inicio = datetime.strptime(partes[0].strip(), "%d/%m/%Y")
-                if len(partes[1].strip()) <= 5:
-                    hora = datetime.strptime(partes[1].strip(), "%H:%M").time()
-                    dt_fim = datetime.combine(dt_inicio, hora)
-                else:
-                    dt_fim = datetime.strptime(partes[1].strip(), "%d/%m/%Y %H:%M")
-            elif len(input_str.strip()) <= 10:
-                dt_inicio = datetime.strptime(input_str.strip(), "%d/%m/%Y")
-                dt_fim = dt_inicio
+                dt_fim = datetime.strptime(partes[1].strip(), "%d/%m/%Y")
             else:
-                dt_inicio = datetime.strptime(input_str.strip(), "%d/%m/%Y %H:%M")
+                dt_inicio = datetime.strptime(input_str.strip(), "%d/%m/%Y")
                 dt_fim = dt_inicio
             return dt_inicio, dt_fim
         except Exception:
@@ -523,17 +561,47 @@ def preview_email_render(request, id_cliente, id_disparo):
     if not dt_inicio or not dt_fim:
         return HttpResponseBadRequest("Formato de data inválido.")
 
+    palavras = Palavrachave.objects.filter(id_categoria__in=disparo.categorias.all())
+
+    query = Q()
+    for palavra in palavras:
+        query |= Q(titulo__icontains=palavra.palavra) | Q(conteudo__icontains=palavra.palavra)
+
     noticias = NoticiaImportada.objects.filter(
-        dt_noticia__range=(dt_inicio, dt_fim),
-        cd_veiculo__in=disparo.id_categoria.veiculosistemas_set.all()
-    )
+        dt_noticia__range=(dt_inicio, dt_fim)
+    ).filter(query).select_related('cd_veiculo')
+
+    # Agrupar por veículo
+    agrupadas = {}
+    for noticia in noticias:
+        nome_veiculo = noticia.cd_veiculo.nome_veiculo.upper() if noticia.cd_veiculo else "SEM VEÍCULO"
+        agrupadas.setdefault(nome_veiculo, []).append(noticia)
+
+    # Links de cada notícia
+    configuracao_cliente = get_object_or_404(ConfiguracaoCliente, id_cliente=disparo.id_cliente)
+
+    links_noticias = {}
+    for noticia in noticias:
+        url = reverse("noticia_detail", kwargs={
+            "sigla_cliente": configuracao_cliente.sigla_cliente,
+            "cd_noticia": noticia.cd_noticia
+        })
+        links_noticias[noticia.cd_noticia] = request.build_absolute_uri(url)
+
+    logo_url = configuracao_cliente.logotipo.url if configuracao_cliente.logotipo else ""
+    data_envio = datetime.now().strftime("%A, %d de %B de %Y").capitalize()
+    nome_cliente = configuracao_cliente.nome_cliente_sistema
 
     return render(request, "emails/components/email_base_render.html", {
         "estilo_geral": disparo.estilo_geral,
         "cabecalho_html": disparo.cabecalho_html,
         "titulo_html": disparo.titulo_html,
         "rodape_html": disparo.rodape_html,
-        "noticias": noticias
+        "agrupadas": agrupadas,
+        "logo_url": logo_url,
+        "data_envio": data_envio,
+        "nome_cliente": nome_cliente,
+        "links_noticias": links_noticias,
     })
 
 
@@ -583,10 +651,15 @@ def enviar_email_simples(request, id_cliente, id_disparo):
         return redirect(reverse("emails:email_detail", args=[id_cliente, id_disparo]))
 
     # Filtra as notícias com base no intervalo de data e nos veículos associados à categoria
+    veiculos = Veiculosistemas.objects.filter(
+        categoriapalavrachave_in=disparo.categorias.all()
+    ).distinct()
+
     noticias = NoticiaImportada.objects.filter(
         dt_noticia__range=(dt_inicio, dt_fim),
-        cd_veiculo__in=disparo.id_categoria.veiculosistemas_set.all()
+        cd_veiculo__in=veiculos
     )
+
 
     # Garante que exista pelo menos uma notícia para enviar
     if not noticias.exists():
@@ -644,8 +717,6 @@ def enviar_email_simples(request, id_cliente, id_disparo):
     # Redireciona de volta para os detalhes do disparo
     return redirect(reverse("emails:email_detail", args=[id_cliente, id_disparo]))
 
-
-
 @csrf_exempt
 def enviar_email_manual(request, id_cliente, id_disparo):
     if request.method != "POST":
@@ -678,7 +749,7 @@ def enviar_email_manual(request, id_cliente, id_disparo):
     if not dt_inicio or not dt_fim:
         return JsonResponse({"erro": "Formato de data inválido"}, status=400)
 
-    palavras = Palavrachave.objects.filter(id_categoria=disparo.id_categoria)
+    palavras = Palavrachave.objects.filter(id_categoria__in=disparo.categorias.all())
 
     query = Q()
     for palavra in palavras:
@@ -710,7 +781,7 @@ def enviar_email_manual(request, id_cliente, id_disparo):
         links_noticias[noticia.cd_noticia] = full_url
 
     logo_url = configuracao_cliente.logotipo.url if configuracao_cliente.logotipo and hasattr(configuracao_cliente.logotipo, 'url') else ""
-    data_envio = localtime().strftime("%d/%m/%Y")
+    data_envio = datetime.now().strftime("%d/%m/%Y")
     nome_cliente = configuracao_cliente.nome_cliente_sistema
 
     corpo_html = render_to_string("emails/components/email_base_render.html", {

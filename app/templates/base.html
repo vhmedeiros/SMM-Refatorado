@@ -1,20 +1,24 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="pt-br" data-bs-theme="dark"> <!-- Tema padrão inicial (pode ser sobrescrito via JS/localStorage) -->
+<html lang="pt-br" data-bs-theme="dark"> <!-- Tema padrão inicial -->
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
   <title>{% block title %}{% endblock %}</title>
 
-  <!-- Bootstrap CSS -->
+  <!-- Favicon -->
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicon.ico' %}">
+
+  <!-- Bootstrap e Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
   <!-- HTMX -->
   <script src="https://unpkg.com/htmx.org@1.9.5"></script>
 
-  <!-- Estilos customizados -->
+  <!-- Estilo customizado -->
   <style>
     body {
       overflow-x: hidden;
@@ -22,11 +26,11 @@
 
     #sidebar {
       transition: all 0.3s ease-in-out;
-      width: 190px; /* largura do sidebar */
+      width: 190px;
     }
 
     #sidebar.toggled {
-      margin-left: -190px; /* oculta o sidebar */
+      margin-left: -190px;
     }
 
     #main-content {
@@ -48,14 +52,11 @@
 
     .nav-link {
       font-size: 14px;
-    }
-
-    .nav-link i {
-      font-size: 20px;
+      transition: all 0.2s ease-in-out;
     }
 
     .nav-link:hover {
-      background-color: #e9ecef;
+      background-color: var(--bs-secondary-bg);
       border-radius: 5px;
     }
 
@@ -71,28 +72,28 @@
     #configMenu .nav-link i {
       font-size: 14px;
     }
-    .nav-link {
-    transition: all 0.2s ease-in-out;
+
+    /* Cabeçalho das tabelas adaptativo ao tema */
+    .tema-tabela-cabecalho th {
+      transition: color 0.3s, background-color 0.3s;
+      color: #212529; /* Texto escuro por padrão */
     }
 
-    .nav-link:hover {
-    background-color: var(--bs-secondary-bg);
+    body[data-bs-theme="dark"] .tema-tabela-cabecalho th {
+      color: #ffffff !important; /* Texto claro no dark mode */
     }
   </style>
 </head>
 
 <body data-cliente-selecionado="{% if cliente_selecionado %}true{% else %}false{% endif %}">
 
-  <!-- Cabeçalho com botão de troca de tema -->
   {% include 'components/_header.html' %}
 
   <div class="d-flex">
-    <!-- Sidebar: agora com classes responsivas e tema adaptável -->
     <div id="sidebar" class="bg-body text-body col-auto col-md-3 col-xl-2 px-0 border-end shadow-sm">
       {% include 'components/_sidebar.html' %}
     </div>
 
-    <!-- Conteúdo principal -->
     <div id="main-content" class="col">
       <div class="container py-3">
         {% block content %}{% endblock %}
@@ -100,13 +101,12 @@
     </div>
   </div>
 
-  <!-- Rodapé com tema adaptável -->
   {% include 'components/_footer.html' %}
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-  <!-- Script: Alternar tema e salvar no localStorage -->
+  <!-- Script: Alternar tema -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const htmlElement = document.documentElement;
@@ -114,74 +114,57 @@
       const themeToggleButton = document.getElementById("theme-toggle");
       const themeIcon = document.getElementById("theme-icon");
 
-      // Aplica o tema salvo ao carregar
       if (savedTheme) {
         htmlElement.setAttribute("data-bs-theme", savedTheme);
-        if (savedTheme === "dark") {
-          themeIcon.classList.replace("bi-sun", "bi-moon");
+        themeIcon?.classList.toggle("bi-sun", savedTheme !== "dark");
+        themeIcon?.classList.toggle("bi-moon", savedTheme === "dark");
+      }
+
+      themeToggleButton?.addEventListener("click", () => {
+        const currentTheme = htmlElement.getAttribute("data-bs-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        htmlElement.setAttribute("data-bs-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        if (newTheme === "dark") {
+          themeIcon?.classList.replace("bi-sun", "bi-moon");
         } else {
-          themeIcon.classList.replace("bi-moon", "bi-sun");
+          themeIcon?.classList.replace("bi-moon", "bi-sun");
         }
-      }
-
-      // Alterna o tema ao clicar no botão
-      if (themeToggleButton) {
-        themeToggleButton.addEventListener("click", () => {
-          const currentTheme = htmlElement.getAttribute("data-bs-theme");
-          const newTheme = currentTheme === "dark" ? "light" : "dark";
-          htmlElement.setAttribute("data-bs-theme", newTheme);
-          localStorage.setItem("theme", newTheme);
-
-          if (newTheme === "dark") {
-            themeIcon.classList.replace("bi-sun", "bi-moon");
-          } else {
-            themeIcon.classList.replace("bi-moon", "bi-sun");
-          }
-        });
-      }
+        atualizarTemaDasTabelas();
+      });
     });
   </script>
 
-  <!-- Script: Alternar visibilidade do sidebar -->
+  <!-- Script: Sidebar -->
   <script>
-    document.getElementById('toggle-sidebar').addEventListener('click', function () {
+    document.getElementById('toggle-sidebar')?.addEventListener('click', function () {
       document.getElementById('sidebar').classList.toggle('toggled');
     });
   </script>
 
-  <!-- Script: Validação de cliente antes de acessar opções -->
+  <!-- Script: Validação cliente selecionado -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".validar-cliente").forEach(link => {
         link.addEventListener("click", function (event) {
-          let clienteSelecionado = document.body.getAttribute("data-cliente-selecionado") === "true";
-
-          if (!clienteSelecionado) {
+          if (document.body.getAttribute("data-cliente-selecionado") !== "true") {
             event.preventDefault();
-            let alertaCliente = new bootstrap.Modal(document.getElementById("alertaCliente"));
-            alertaCliente.show();
-          } else {
-            const destino = this.getAttribute("data-url");
-            if (destino) {
-              window.location.href = destino;
-            }
+            new bootstrap.Modal(document.getElementById("alertaCliente")).show();
           }
         });
       });
     });
   </script>
 
-  <!-- Modal: Alerta para seleção de cliente -->
+  <!-- Modal: Cliente não selecionado -->
   <div class="modal fade" id="alertaCliente" tabindex="-1" aria-labelledby="alertaClienteLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title text-danger" id="alertaClienteLabel"><i class="bi bi-exclamation-circle"></i> Atenção</h5>
+          <h5 class="modal-title text-danger"><i class="bi bi-exclamation-circle"></i> Atenção</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
-        <div class="modal-body">
-          Você precisa selecionar um cliente antes de acessar esta opção.
-        </div>
+        <div class="modal-body">Você precisa selecionar um cliente antes de acessar esta opção.</div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendi</button>
         </div>
@@ -189,41 +172,23 @@
     </div>
   </div>
 
-
-
-    <!-- Script: Atualizar tema das tabelas dinamicamente -->
+  <!-- Script: Atualizar tema das tabelas -->
   <script>
     function atualizarTemaDasTabelas() {
       const tema = document.documentElement.getAttribute("data-bs-theme");
-      const tabelas = document.querySelectorAll(".tema-tabela");
-
-      tabelas.forEach(tabela => {
-        const thead = tabela.querySelector("thead");
-
-        tabela.classList.remove("table-dark", "table-light");
-        thead?.classList.remove("table-dark", "table-light");
-
+      document.querySelectorAll(".tema-tabela-cabecalho th").forEach(th => {
         if (tema === "dark") {
-          tabela.classList.add("table-dark");
-          thead?.classList.add("table-light");
+          th.style.color = "#ffffff";
         } else {
-          tabela.classList.add("table-light");
-          thead?.classList.add("table-dark");
+          th.style.color = "#212529";
         }
       });
     }
 
     document.addEventListener("DOMContentLoaded", atualizarTemaDasTabelas);
-
-    const botaoTema = document.getElementById("theme-toggle");
-    if (botaoTema) {
-      botaoTema.addEventListener("click", () => {
-        setTimeout(atualizarTemaDasTabelas, 50);
-      });
-    }
   </script>
 
-
+  <!-- HTMX CSRF -->
   <script>
     document.body.addEventListener('htmx:configRequest', function (event) {
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
@@ -233,16 +198,14 @@
     });
   </script>
 
+  <!-- Tooltip Bootstrap -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-      tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+      [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(function (el) {
+        return new bootstrap.Tooltip(el);
       });
     });
-
   </script>
 
 </body>
-
 </html>
