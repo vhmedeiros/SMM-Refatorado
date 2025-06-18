@@ -7,11 +7,17 @@
 
     <div class="card shadow-sm bg-body text-body p-4">
         <div class="card-body">
-            {% if form.errors %}
+            {% if form.errors or imagem_form.errors %}
             <div class="alert alert-danger">
                 <strong>Erros encontrados:</strong>
                 <ul>
                     {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% for field, errors in imagem_form.errors.items %}
                         {% for error in errors %}
                             <li>{{ field|title }}: {{ error }}</li>
                         {% endfor %}
@@ -39,13 +45,13 @@
 
                     <!-- Data de Publicação -->
                     <div class="col-md-6 mb-3">
-                        <label for="{{ form.dt_noticia.id_for_label }}" class="form-label">Data de Publicação</label>
+                        {{ form.dt_noticia.label_tag }}
                         {{ form.dt_noticia|add_class:"form-control" }}
                     </div>
 
                     <!-- URL da Notícia -->
                     <div class="col-md-6 mb-3">
-                        <label for="{{ form.ds_url.id_for_label }}" class="form-label">URL da Notícia</label>
+                        {{ form.ds_url.label_tag }}
                         {{ form.ds_url|add_class:"form-control" }}
                     </div>
 
@@ -57,7 +63,7 @@
 
                     <!-- Autor -->
                     <div class="col-md-6 mb-3">
-                        <label for="{{ form.no_colunista.id_for_label }}" class="form-label">Autor</label>
+                        {{ form.no_colunista.label_tag }}
                         {{ form.no_colunista|add_class:"form-control" }}
                     </div>
 
@@ -79,10 +85,16 @@
                         {{ form.conteudo|add_class:"form-control" }}
                     </div>
 
-                    <!-- Imagem -->
+                    <!-- Upload de Imagem (Tipo + Arquivo) -->
+                    <hr class="my-4">
+                    <h5>📸 Upload de Imagem da Notícia (Opcional)</h5>
+                    <div class="col-md-6 mb-3">
+                        {{ imagem_form.tipo_imagem.label_tag }}
+                        {{ imagem_form.tipo_imagem|add_class:"form-select" }}
+                    </div>
                     <div class="col-md-12 mb-3">
-                        <label class="form-label">Imagem da Notícia</label>
-                        {{ form.imagem }}
+                        {{ imagem_form.caminho_imagem.label_tag }}
+                        {{ imagem_form.caminho_imagem|add_class:"form-control" }}
                     </div>
                 </div>
 

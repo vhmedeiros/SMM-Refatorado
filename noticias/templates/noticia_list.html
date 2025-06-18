@@ -29,18 +29,20 @@ SMM - Lista de Notícias
                 <div id="sugestoes-veiculo" class="dropdown-menu"></div>
             </div>
 
-            <!-- Filtro por Data -->
-            <div class="col-md-2">
-                <input type="date" class="form-control" name="data_inicio"
-                       value="{{ request.GET.data_inicio|default:'' }}">
+            <!-- Filtro por Data e Hora (Início) -->
+            <div class="col-md-3">
+                <input type="datetime-local" class="form-control" name="data_inicio"
+                       value="{{ request.GET.data_inicio }}">
             </div>
-            <div class="col-md-2">
-                <input type="date" class="form-control" name="data_fim"
-                       value="{{ request.GET.data_fim|default:'' }}">
+
+            <!-- Filtro por Data e Hora (Fim) -->
+            <div class="col-md-3">
+                <input type="datetime-local" class="form-control" name="data_fim"
+                       value="{{ request.GET.data_fim }}">
             </div>
 
             <!-- Filtro por UF -->
-            <div class="col-md-2">
+            <div class="col-md-3 mt-2">
                 <select class="form-select" name="uf">
                     <option value="">Todos os Estados</option>
                     {% for estado in estados %}
@@ -88,19 +90,4 @@ SMM - Lista de Notícias
     <!-- Paginação -->
     {% include 'components/_pagination.html' %}
 </div>
-
-<!-- Script opcional para corrigir datas exibidas no input (se for necessário) -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    let inputsData = document.querySelectorAll("input[name='data_inicio'], input[name='data_fim']");
-    inputsData.forEach(input => {
-        if (input.value && input.value.includes("-")) {
-            let partes = input.value.split("-");
-            if (partes.length === 3) {
-                input.value = `${partes[2]}/${partes[1]}/${partes[0]}`;
-            }
-        }
-    });
-});
-</script>
 {% endblock %}

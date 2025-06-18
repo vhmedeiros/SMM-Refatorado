@@ -28,7 +28,6 @@ class NoticiaImportada(models.Model):
     no_colunista = models.CharField(max_length=1000, blank=True, null=True)
     ds_url_media = models.CharField(max_length=2000, blank=True, null=True)
     cd_pagina = models.CharField(max_length=6, blank=True, null=True)
-    imagem = models.ImageField(upload_to="noticias/", blank=True, null=True, verbose_name="Imagem")
 
     class Meta:
         managed = False
@@ -38,3 +37,28 @@ class NoticiaImportada(models.Model):
 
     def __str__(self):
         return self.titulo
+
+
+class NoticiaImagem(models.Model):
+    TIPOS_IMAGEM = [
+        ('foto', 'FOT - Foto (no topo)'),
+        ('img', 'IMG - Imagem após o conteúdo'),
+        ('ifg', 'IFG - Infográfico'),
+        ('a4', 'PDF / A4'),
+        ('ps', 'PTS - PrintScreen miniatura ao lado do título'),
+    ]
+
+    id = models.AutoField(primary_key=True)
+    noticia = models.ForeignKey(NoticiaImportada, on_delete=models.DO_NOTHING, related_name='imagens')
+    tipo_imagem = models.CharField(max_length=10, choices=TIPOS_IMAGEM)
+    caminho_imagem = models.FileField(upload_to='noticia_img/', blank=True, null=True, verbose_name='Imagem')
+    dt_cadastro = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = False
+        db_table = 'noticia_imagem'
+        verbose_name = 'Imagem da Notícia'
+        verbose_name_plural = 'Imagens das Notícias'
+        
+    # def __str__(self):
+    #     return f"self.get_tipo_imagem_display() - {self.caminho_imagem}"

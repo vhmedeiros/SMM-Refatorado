@@ -8,10 +8,14 @@
             </a>
         </td>
 
-        <!-- Título da Notícia -->
+        <!-- Título da Notícia (Limitado a 100 caracteres) -->
         <td class="fw-semibold">
             <a href="{% url 'noticia_update' noticia.cd_noticia %}" class="text-decoration-none fw-semibold text-body">
-                {{ noticia.titulo }}
+                {% if noticia.titulo|length > 100 %}
+                    {{ noticia.titulo|slice:":100" }}...
+                {% else %}
+                    {{ noticia.titulo }}
+                {% endif %}
             </a>
         </td>
 
@@ -25,6 +29,9 @@
             {{ noticia.dt_noticia|date:"d/m/Y" }} <small>{{ noticia.dt_noticia|date:"H:i:s" }}</small>
         </td>
     </tr>
-    <!-- -------AQUI ERA O TRATAMENTO PARA QUANDO NÃO SE TINHA NOTICIAS---------------- -->
+    {% empty %}
+    <tr>
+        <td colspan="4" class="text-center text-muted">Nenhuma notícia encontrada.</td>
+    </tr>
     {% endfor %}
 </tbody>

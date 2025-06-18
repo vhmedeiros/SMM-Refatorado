@@ -9,4 +9,5 @@ urlpatterns = [
     path("buscar-veiculos/", views.buscar_veiculos, name="buscar_veiculos"),
     path("buscar-cidades/", views.buscar_cidades, name="buscar_cidades"),
     path("buscar-veiculos-popup", views.buscar_veiculos_popup, name="buscar_veiculos_popup"),
+    path("noticias/<int:pk>/upload-imagem/", views.NoticiaImagemCreateView.as_view(), name="upload_imagem"),
 ]
